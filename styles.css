@@ -1081,101 +1081,62 @@ body[dir="rtl"] .search-input {
     overflow: hidden;
 }
 
-/* Collapsible children container */
+/* ========== CONNECTOR LINES ========== */
+
+/* Vertical line down from parent to horizontal bar */
+.tree-line-down {
+    width: 2px;
+    height: 28px;
+    background: var(--secondary);
+    margin: 0 auto;
+    transition: opacity 0.3s ease;
+}
+
+/* Horizontal bar connecting siblings */
+.tree-line-horiz {
+    height: 2px;
+    background: var(--secondary);
+    margin: 0 auto;
+    /* Stretch to span from first child center to last child center */
+    width: calc(100% - 100% / var(--child-count, 3));
+    max-width: 90%;
+    transition: opacity 0.3s ease;
+}
+
+/* Set child count via attribute for width calc — fallback handled in JS */
+.tree-children[data-count="2"] ~ .tree-line-horiz,
+.tree-node-html > .tree-line-horiz {
+    /* Default width works fine */
+}
+
+/* Vertical line up from horizontal bar to each child */
+.tree-line-up {
+    width: 2px;
+    height: 28px;
+    background: var(--secondary);
+    margin: 0 auto;
+}
+
+/* Hide lines when collapsed */
+.tree-line-down.collapsed,
+.tree-line-horiz.collapsed {
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* ========== CHILDREN ROW ========== */
 .tree-children {
     display: flex;
     justify-content: center;
-    gap: 0;
-    margin-top: 0;
-    padding-top: 40px;
-    position: relative;
+    gap: 12px;
     overflow: hidden;
     transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
-}
-
-/* Vertical line from parent down to the horizontal bar */
-.tree-children::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 20px;
-    background: var(--secondary);
-    opacity: 0.4;
-}
-
-/* Horizontal line connecting all children */
-.tree-children::after {
-    content: '';
-    position: absolute;
-    top: 20px;
-    height: 2px;
-    background: var(--secondary);
-    opacity: 0.4;
-    /* Spans from first child center to last child center */
-    left: calc(50% / var(--child-count, 1));
-    right: calc(50% / var(--child-count, 1));
-}
-
-/* Vertical line from horizontal bar down to each child */
-.tree-children > .tree-node-html {
-    padding-top: 20px;
-    position: relative;
-    flex: 1;
-    min-width: 0;
-    max-width: 300px;
-}
-
-.tree-children > .tree-node-html::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 20px;
-    background: var(--secondary);
-    opacity: 0.4;
-}
-
-/* Single child — just one vertical line, no horizontal */
-.tree-children:has(> .tree-node-html:only-child)::after {
-    display: none;
-}
-
-.tree-children:has(> .tree-node-html:only-child)::before {
-    height: 40px;
-}
-
-.tree-children:has(> .tree-node-html:only-child) > .tree-node-html::before {
-    display: none;
-}
-
-/* Horizontal bar positioning for 2 children */
-.tree-children:has(> .tree-node-html:nth-child(2):last-child)::after {
-    left: 25%;
-    right: 25%;
-}
-
-/* Horizontal bar positioning for 3 children */
-.tree-children:has(> .tree-node-html:nth-child(3):last-child)::after {
-    left: calc(100% / 6);
-    right: calc(100% / 6);
-}
-
-/* Horizontal bar positioning for 4+ children */
-.tree-children:has(> .tree-node-html:nth-child(4))::after {
-    left: calc(100% / 8);
-    right: calc(100% / 8);
 }
 
 .tree-children.collapsed {
     max-height: 0 !important;
     opacity: 0;
-    margin-top: 0;
-    padding-top: 0;
     pointer-events: none;
 }
 
@@ -1187,6 +1148,15 @@ body[dir="rtl"] .search-input {
 .tree-children.collapsing {
     opacity: 0;
     transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+/* Each child wrapper holds the line-up + the node */
+.tree-child-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
 }
 
 /* Level sizing */
@@ -1204,7 +1174,7 @@ body[dir="rtl"] .search-input {
 .level-2 > .tree-node-card {
     font-size: 0.9em;
     padding: 14px 16px;
-    width: 220px;
+    width: 230px;
 }
 
 .level-3 > .tree-node-card {
@@ -1449,30 +1419,28 @@ footer {
     .tree-children {
         flex-direction: column;
         align-items: center;
-        padding-top: 20px;
+        gap: 0;
     }
 
-    /* On mobile, hide horizontal bar and adjust vertical lines */
-    .tree-children::after {
+    .tree-line-horiz {
         display: none;
     }
 
-    .tree-children::before {
+    .tree-line-up {
+        display: none;
+    }
+
+    .tree-line-down {
         height: 20px;
     }
 
-    .tree-children > .tree-node-html {
-        padding-top: 0;
-        max-width: 100%;
+    .tree-child-wrapper {
+        width: 100%;
+        max-width: 320px;
     }
 
-    .tree-children > .tree-node-html::before {
-        display: none;
-    }
-
-    /* Add a simple vertical connector between stacked children */
-    .tree-children > .tree-node-html + .tree-node-html {
-        margin-top: 12px;
+    .tree-child-wrapper + .tree-child-wrapper {
+        margin-top: 8px;
     }
 
     .tree-node-card {

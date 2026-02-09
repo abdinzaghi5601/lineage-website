@@ -394,7 +394,7 @@ function countDescendants(node) {
     return count;
 }
 
-// HTML-based tree with expand/collapse on click
+// HTML-based tree with expand/collapse and connector lines
 function createHTMLFamilyTree(data, container) {
     const treeContainer = document.getElementById(container);
     treeContainer.innerHTML = '';
@@ -411,7 +411,6 @@ function createHTMLFamilyTree(data, container) {
         else if (level === 1) card.classList.add('first-gen');
         else card.classList.add('child-node');
 
-        // Card inner layout
         const cardTop = document.createElement('div');
         cardTop.className = 'tree-card-top';
 
@@ -419,7 +418,6 @@ function createHTMLFamilyTree(data, container) {
         name.className = 'tree-node-name';
         name.textContent = node.name;
         cardTop.appendChild(name);
-
         card.appendChild(cardTop);
 
         if (node.title) {
@@ -436,7 +434,6 @@ function createHTMLFamilyTree(data, container) {
             card.appendChild(desc);
         }
 
-        // Bottom row: member count badge + info button
         const cardBottom = document.createElement('div');
         cardBottom.className = 'tree-card-bottom';
 
@@ -447,14 +444,12 @@ function createHTMLFamilyTree(data, container) {
             badge.textContent = `${node.children.length} child${node.children.length > 1 ? 'ren' : ''} · ${totalDesc} total`;
             cardBottom.appendChild(badge);
 
-            // Expand/collapse chevron
             const chevron = document.createElement('span');
             chevron.className = 'tree-chevron';
             chevron.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
             cardBottom.appendChild(chevron);
         }
 
-        // Info button
         const infoBtn = document.createElement('button');
         infoBtn.className = 'tree-info-btn';
         infoBtn.setAttribute('aria-label', `View details for ${node.name}`);
@@ -464,58 +459,84 @@ function createHTMLFamilyTree(data, container) {
             showNodeDetails(node);
         });
         cardBottom.appendChild(infoBtn);
-
         card.appendChild(cardBottom);
-
         nodeDiv.appendChild(card);
 
-        // Children container (starts collapsed except root level)
         if (hasChildren) {
-            const childrenContainer = document.createElement('div');
-            childrenContainer.className = 'tree-children';
+            // Vertical line down from parent card
+            const lineDown = document.createElement('div');
+            lineDown.className = 'tree-line-down';
+            nodeDiv.appendChild(lineDown);
 
-            // Root starts expanded, everything else collapsed
+            // Horizontal bar connecting children (only if more than 1 child)
+            if (node.children.length > 1) {
+                const lineHoriz = document.createElement('div');
+                lineHoriz.className = 'tree-line-horiz';
+                nodeDiv.appendChild(lineHoriz);
+            }
+
+            // Children row
+            const childrenRow = document.createElement('div');
+            childrenRow.className = 'tree-children';
+            childrenRow.setAttribute('data-count', node.children.length);
+
             if (level > 0) {
-                childrenContainer.classList.add('collapsed');
+                childrenRow.classList.add('collapsed');
+                lineDown.classList.add('collapsed');
+                if (node.children.length > 1) {
+                    nodeDiv.querySelector('.tree-line-horiz').classList.add('collapsed');
+                }
             } else {
                 card.classList.add('expanded');
             }
 
             node.children.forEach(child => {
-                childrenContainer.appendChild(createNodeHTML(child, level + 1));
+                // Wrapper for each child with its own vertical connector
+                const childWrapper = document.createElement('div');
+                childWrapper.className = 'tree-child-wrapper';
+
+                if (node.children.length > 1) {
+                    const childLineUp = document.createElement('div');
+                    childLineUp.className = 'tree-line-up';
+                    childWrapper.appendChild(childLineUp);
+                }
+
+                childWrapper.appendChild(createNodeHTML(child, level + 1));
+                childrenRow.appendChild(childWrapper);
             });
 
-            nodeDiv.appendChild(childrenContainer);
+            nodeDiv.appendChild(childrenRow);
 
-            // Click the card to expand/collapse
+            // Click to expand/collapse
             card.addEventListener('click', (e) => {
-                // Don't toggle if clicking the info button
                 if (e.target.closest('.tree-info-btn')) return;
 
-                const isCollapsed = childrenContainer.classList.contains('collapsed');
+                const lines = nodeDiv.querySelectorAll(':scope > .tree-line-down, :scope > .tree-line-horiz');
+                const isCollapsed = childrenRow.classList.contains('collapsed');
+
                 if (isCollapsed) {
-                    childrenContainer.classList.remove('collapsed');
-                    childrenContainer.classList.add('expanding');
+                    childrenRow.classList.remove('collapsed');
+                    childrenRow.classList.add('expanding');
+                    lines.forEach(l => l.classList.remove('collapsed'));
                     card.classList.add('expanded');
-                    // Measure height for animation
-                    const height = childrenContainer.scrollHeight;
-                    childrenContainer.style.maxHeight = height + 'px';
+                    const height = childrenRow.scrollHeight;
+                    childrenRow.style.maxHeight = height + 'px';
                     setTimeout(() => {
-                        childrenContainer.classList.remove('expanding');
-                        childrenContainer.style.maxHeight = 'none';
+                        childrenRow.classList.remove('expanding');
+                        childrenRow.style.maxHeight = 'none';
                     }, 350);
                 } else {
-                    // Collapse
-                    const height = childrenContainer.scrollHeight;
-                    childrenContainer.style.maxHeight = height + 'px';
-                    childrenContainer.offsetHeight; // force reflow
-                    childrenContainer.classList.add('collapsing');
-                    childrenContainer.style.maxHeight = '0';
+                    const height = childrenRow.scrollHeight;
+                    childrenRow.style.maxHeight = height + 'px';
+                    childrenRow.offsetHeight;
+                    childrenRow.classList.add('collapsing');
+                    childrenRow.style.maxHeight = '0';
+                    lines.forEach(l => l.classList.add('collapsed'));
                     card.classList.remove('expanded');
                     setTimeout(() => {
-                        childrenContainer.classList.remove('collapsing');
-                        childrenContainer.classList.add('collapsed');
-                        childrenContainer.style.maxHeight = '';
+                        childrenRow.classList.remove('collapsing');
+                        childrenRow.classList.add('collapsed');
+                        childrenRow.style.maxHeight = '';
                     }, 350);
                 }
             });
