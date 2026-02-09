@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Family lineage and genealogy of Munawwar Chand Sahib - an interactive family tree explorer">
+    <title>Family Lineage - Munawwar Chand Sahib</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a href="#main-content" class="skip-nav">Skip to main content</a>
+
+    <div class="container">
+        <header>
+            <div class="header-glow"></div>
+            <div class="language-switcher-container">
+                <button id="language-switcher" class="language-switcher-btn" aria-label="Switch language to Urdu">اردو</button>
+            </div>
+            <h1 data-i18n="title">Family Lineage</h1>
+            <h2 class="arabic-title">عائلی نسب نامہ</h2>
+            <p class="subtitle"><span data-i18n="subtitle">Family of Munawwar Chand Sahib</span> <span class="arabic">(رحمۃ اللہ علیہ)</span></p>
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="index.html" class="nav-link active" data-i18n="nav-tree">View Family Tree</a>
+                <a href="genealogy-form.html" class="nav-link" data-i18n="nav-form">Genealogy Form</a>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <!-- Search & Filter Section -->
+            <div class="search-section">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <input type="text" id="family-search" class="search-input" data-i18n="search-placeholder" placeholder="Search family members by name..." aria-label="Search family members">
+                    </div>
+                    <div class="filter-options">
+                        <select id="filter-generation" class="filter-select" aria-label="Filter by generation">
+                            <option value="" data-i18n="filter-all-generations">All Generations</option>
+                        </select>
+                        <select id="filter-profession" class="filter-select" aria-label="Filter by profession">
+                            <option value="" data-i18n="filter-all-professions">All Professions</option>
+                        </select>
+                        <button id="clear-filters" class="btn-filter" data-i18n="clear-filters">Clear Filters</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Statistics Dashboard -->
+            <div class="stats-dashboard">
+                <h2 class="section-title" data-i18n="stats-title">Family Statistics</h2>
+                <div class="stats-grid" id="family-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
+                        </div>
+                        <div class="stat-value" id="stat-total-members">-</div>
+                        <div class="stat-label" data-i18n="stat-total-members">Total Members</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21a9 9 0 0 0 9-9c0-3.314-3-6-3-9 0 3-5 6-6 6s-6-3-6-6c0 3-3 5.686-3 9a9 9 0 0 0 9 9Z"/></svg>
+                        </div>
+                        <div class="stat-value" id="stat-generations">-</div>
+                        <div class="stat-label" data-i18n="stat-generations">Generations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>
+                        </div>
+                        <div class="stat-value" id="stat-families">-</div>
+                        <div class="stat-label" data-i18n="stat-families">Family Branches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
+                        </div>
+                        <div class="stat-value" id="stat-timeline">-</div>
+                        <div class="stat-label" data-i18n="stat-timeline">Timeline Span</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline View Toggle -->
+            <div class="view-toggle-section">
+                <button class="view-toggle-btn active" data-view="tree" id="tree-view-btn" data-i18n="view-tree" aria-pressed="true">Tree View</button>
+                <button class="view-toggle-btn" data-view="timeline" id="timeline-view-btn" data-i18n="view-timeline" aria-pressed="false">Timeline View</button>
+                <button class="view-toggle-btn" data-view="stats" id="stats-view-btn" data-i18n="view-stats" aria-pressed="false">Statistics</button>
+            </div>
+
+            <!-- Timeline View Container -->
+            <div id="timeline-container" class="timeline-container" style="display: none;" role="region" aria-label="Family Timeline">
+                <h2 class="section-title" data-i18n="timeline-title">Family Timeline</h2>
+                <div id="timeline-content" class="timeline-content"></div>
+            </div>
+
+            <div class="intro-section">
+                <div class="intro-card">
+                    <h3 data-i18n="section-great-grandfather">Great-Grandfather</h3>
+                    <div class="person-card featured">
+                        <div class="person-name">Munawwar Chand Sahib</div>
+                        <div class="person-title arabic">(رحمۃ اللہ علیہ)</div>
+                        <div class="person-details">
+                            <p><strong data-i18n="role">Role:</strong> Police Patil during the Nizam of Deccan era</p>
+                            <p>He served under the Nizam of Deccan and was responsible for maintaining law and order. He was widely respected for his integrity, administrative ability, and public service.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="family-tree-container">
+                <h2 class="section-title" data-i18n="section-family-tree">Family Tree</h2>
+                <div id="tree-status" class="tree-status"></div>
+                <div id="family-tree" class="family-tree" role="tree" aria-label="Family tree visualization"></div>
+            </div>
+
+            <div class="family-details">
+                <h2 class="section-title" data-i18n="section-family-details">Family Details</h2>
+
+                <!-- First Son -->
+                <div class="generation-section">
+                    <div class="generation-header">
+                        <span class="generation-number">1</span>
+                        <h3>Maulana Abul Jameel Muhammad Yaseen Sahib <span class="arabic">(رحمۃ اللہ علیہ)</span></h3>
+                    </div>
+                    <div class="person-info">
+                        <p><strong data-i18n="description">Description:</strong> A distinguished Islamic scholar of his era. Known for outstanding religious and educational contributions.</p>
+                    </div>
+                    <div class="children-section">
+                        <h4 data-i18n="son">Son:</h4>
+                        <div class="person-card">
+                            <div class="person-name">Hakeem & Dr. Muhammad Abdus Samad Samdani <span class="arabic">(رحمۃ اللہ علیہ)</span></div>
+                            <div class="person-details">
+                                <p><strong data-i18n="description">Description:</strong> Eminent physician, Hakeem, and religious scholar</p>
+                                <p><strong data-i18n="children">Children:</strong> He had eight (8) children</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second Son -->
+                <div class="generation-section">
+                    <div class="generation-header">
+                        <span class="generation-number">2</span>
+                        <h3>Late Muhammad Abdul Ghani Sahib</h3>
+                    </div>
+                    <div class="person-info">
+                        <p><strong data-i18n="description">Description:</strong> Second son of Munawwar Chand Sahib. Known within the family for dignity, responsibility, and moral character.</p>
+                    </div>
+                    <div class="children-section">
+                        <h4 data-i18n="son">Son:</h4>
+                        <div class="person-card">
+                            <div class="person-name">Late Muhammad Abdullah Sahib</div>
+                            <div class="person-details">
+                                <p><strong data-i18n="wife">Wife:</strong> Lalama (paternal/maternal grandmother)</p>
+                                <p><strong data-i18n="residence">Residence:</strong> Near Moulali, Moulali Industrial Area, New Srinagar Colony, Moulali</p>
+                                <div class="grandchildren">
+                                    <h5 data-i18n="children-sons">Children (Sons):</h5>
+                                    <div class="grandchild-item">
+                                        <strong>Abdul Mateen</strong>
+                                        <p>Three sons and one daughter</p>
+                                    </div>
+                                    <div class="grandchild-item">
+                                        <strong>Abdul Mubeen</strong>
+                                        <p>One son and two daughters</p>
+                                    </div>
+                                    <div class="grandchild-item">
+                                        <strong>Abdul Mohsin</strong>
+                                        <p>Three daughters</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Third Son -->
+                <div class="generation-section">
+                    <div class="generation-header">
+                        <span class="generation-number">3</span>
+                        <h3>Third Son of Munawwar Chand Sahib</h3>
+                    </div>
+                    <div class="person-info">
+                        <p><em>Authentic and verified information not yet available. Family records to be updated when details are obtained.</em></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Person Detail Modal -->
+        <div id="person-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-name" hidden>
+            <div class="modal-content">
+                <button class="modal-close" aria-label="Close detail panel">&times;</button>
+                <div class="modal-body">
+                    <div class="modal-name" id="modal-name"></div>
+                    <div class="modal-title" id="modal-title"></div>
+                    <div class="modal-description" id="modal-description"></div>
+                    <div class="modal-children-list" id="modal-children"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>The family of Munawwar Chand Sahib <span class="arabic">(رحمۃ اللہ علیہ)</span> represents a lineage rooted in public service, religious scholarship, and social responsibility. From administrative service during the Nizam era to religious learning and family leadership, each generation contributed to preserving honor, knowledge, and moral values.</p>
+                <p class="footer-note">This genealogy has been accurately corrected to reflect that Late Muhammad Abdul Ghani Sahib was the second son of Munawwar Chand Sahib. Further verified information may be added to complete the historical record.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Genealogy Form - Shajra-e-Nasab</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="form-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Family Genealogy Form</h1>
+            <h2 class="arabic-title">شجرہ نسب</h2>
+            <p class="subtitle">Shajra-e-Nasab / Family Tree Record</p>
+            <nav class="main-nav">
+                <a href="index.html" class="nav-link">View Family Tree</a>
+                <a href="genealogy-form.html" class="nav-link active">Genealogy Form</a>
+            </nav>
+        </header>
+
+        <!-- Form Management Section -->
+        <div class="form-management-section">
+            <div class="form-management-header">
+                <div class="form-info">
+                    <h3>Form Management</h3>
+                    <div class="form-meta">
+                        <span id="form-number-display" class="form-number">Form #: New</span>
+                        <span id="form-version-display" class="form-version">Version: 1.0</span>
+                        <span id="form-status" class="form-status">Status: Draft</span>
+                    </div>
+                    <div class="storage-info">
+                        <small>📍 Storage: Browser (Local) | 💾 Export to backup files for sharing</small>
+                    </div>
+                </div>
+                <div class="form-actions-header">
+                    <button type="button" class="btn btn-secondary" id="new-form-btn">+ New Form</button>
+                    <button type="button" class="btn btn-secondary" id="load-form-btn">📂 Load Form</button>
+                    <button type="button" class="btn btn-secondary" id="form-history-btn">📋 History</button>
+                    <button type="button" class="btn btn-secondary" id="backup-all-btn">💾 Backup All Forms</button>
+                    <button type="button" class="btn btn-secondary" id="import-forms-btn">📥 Import Forms</button>
+                </div>
+            </div>
+            
+            <div id="form-selector-panel" class="form-selector-panel" style="display: none;">
+                <h4>Select Form to Edit:</h4>
+                <div id="forms-list" class="forms-list"></div>
+                <button type="button" class="btn btn-secondary" id="close-selector-btn">Close</button>
+            </div>
+
+            <div id="form-history-panel" class="form-history-panel" style="display: none;">
+                <h4>Version History for Form <span id="history-form-number"></span>:</h4>
+                <div id="versions-list" class="versions-list"></div>
+                <button type="button" class="btn btn-secondary" id="close-history-btn">Close</button>
+            </div>
+
+            <div id="import-panel" class="import-panel" style="display: none;">
+                <h4>Import Forms from File:</h4>
+                <p class="import-info">Select a JSON file containing form data to import. This will add forms to your collection.</p>
+                <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                <div class="import-actions">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('import-file-input').click()">Choose File</button>
+                    <span id="import-file-name" class="import-file-name">No file selected</span>
+                </div>
+                <div class="import-options">
+                    <label>
+                        <input type="checkbox" id="import-overwrite" checked>
+                        Overwrite existing forms with same number
+                    </label>
+                </div>
+                <div class="import-actions-footer">
+                    <button type="button" class="btn btn-primary" id="execute-import-btn">Import Forms</button>
+                    <button type="button" class="btn btn-secondary" id="close-import-btn">Cancel</button>
+                </div>
+            </div>
+
+            <div id="edit-mode-indicator" class="edit-mode-indicator" style="display: none;">
+                <span>✏️ Edit Mode - Form #<span id="edit-form-number"></span> Version <span id="edit-version-number"></span></span>
+                <button type="button" class="btn btn-small" id="exit-edit-btn">Exit Edit Mode</button>
+            </div>
+        </div>
+
+        <form id="genealogy-form" class="genealogy-form">
+            <!-- Hidden fields for form management -->
+            <input type="hidden" id="form-id" name="form-id" value="">
+            <input type="hidden" id="form-version" name="form-version" value="1.0">
+            <input type="hidden" id="form-number" name="form-number" value="">
+            <input type="hidden" id="is-edit-mode" name="is-edit-mode" value="false">
+            <input type="hidden" id="parent-form-id" name="parent-form-id" value="">
+            <!-- Section 1: Family Identification -->
+            <section class="form-section">
+                <h2 class="section-number">1</h2>
+                <h3 class="section-title">Family Identification</h3>
+                
+                <div class="form-group">
+                    <label for="family-name">Family / Clan Name:</label>
+                    <input type="text" id="family-name" name="family-name" placeholder="Enter family/clan name">
+                </div>
+
+                <div class="form-group">
+                    <label for="ancestral-title">Ancestral Title / Surname (if any):</label>
+                    <input type="text" id="ancestral-title" name="ancestral-title" placeholder="Enter ancestral title or surname">
+                </div>
+
+                <div class="form-group">
+                    <label for="ancestral-homeland">Ancestral Homeland:</label>
+                    <input type="text" id="ancestral-homeland" name="ancestral-homeland" placeholder="Enter ancestral homeland">
+                </div>
+
+                <div class="form-group">
+                    <label for="present-residence">Present Regions of Residence:</label>
+                    <textarea id="present-residence" name="present-residence" rows="3" placeholder="Enter present regions of residence"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 2: Earliest Known Ancestor -->
+            <section class="form-section">
+                <h2 class="section-number">2</h2>
+                <h3 class="section-title">Earliest Known Ancestor</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ancestor-name">Full Name:</label>
+                        <input type="text" id="ancestor-name" name="ancestor-name" placeholder="Enter full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ancestor-title">Title / Nickname:</label>
+                        <input type="text" id="ancestor-title" name="ancestor-title" placeholder="Enter title or nickname">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ancestor-dob">Date of Birth:</label>
+                        <input type="date" id="ancestor-dob" name="ancestor-dob">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ancestor-pob">Place of Birth:</label>
+                        <input type="text" id="ancestor-pob" name="ancestor-pob" placeholder="Enter place of birth">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ancestor-dod">Date of Death:</label>
+                        <input type="date" id="ancestor-dod" name="ancestor-dod">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ancestor-burial">Place of Burial:</label>
+                        <input type="text" id="ancestor-burial" name="ancestor-burial" placeholder="Enter place of burial">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ancestor-profession">Profession / Status:</label>
+                    <input type="text" id="ancestor-profession" name="ancestor-profession" placeholder="Enter profession or status">
+                </div>
+
+                <div class="form-group">
+                    <label for="ancestor-notes">Brief Notes (services, reputation, role):</label>
+                    <textarea id="ancestor-notes" name="ancestor-notes" rows="4" placeholder="Enter brief notes about services, reputation, and role"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 3: Generation-wise Lineage Record -->
+            <section class="form-section">
+                <h2 class="section-number">3</h2>
+                <h3 class="section-title">Generation-wise Lineage Record</h3>
+                <p class="section-description">Repeat this section for each generation</p>
+                
+                <div id="generations-container">
+                    <!-- Generation sections will be added dynamically -->
+                </div>
+
+                <button type="button" class="btn btn-secondary" id="add-generation-btn">
+                    <span>+</span> Add Generation
+                </button>
+            </section>
+
+            <!-- Section 4: Marital Details -->
+            <section class="form-section">
+                <h2 class="section-number">4</h2>
+                <h3 class="section-title">Marital Details (If Applicable)</h3>
+                
+                <div class="form-group">
+                    <label for="marriages-count">Number of Marriages:</label>
+                    <input type="number" id="marriages-count" name="marriages-count" min="0" value="0">
+                </div>
+
+                <div id="marriages-container">
+                    <!-- Marriage details will be added dynamically -->
+                </div>
+            </section>
+
+            <!-- Section 5: Scholarly, Religious, and Social Contributions -->
+            <section class="form-section">
+                <h2 class="section-number">5</h2>
+                <h3 class="section-title">Scholarly, Religious, and Social Contributions</h3>
+                
+                <div class="form-group">
+                    <label for="religious-roles">Religious or scholarly roles:</label>
+                    <textarea id="religious-roles" name="religious-roles" rows="3" placeholder="Enter religious or scholarly roles"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="institutions">Institutions founded or served:</label>
+                    <textarea id="institutions" name="institutions" rows="3" placeholder="Enter institutions founded or served"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="writings">Books, writings, or teachings:</label>
+                    <textarea id="writings" name="writings" rows="3" placeholder="Enter books, writings, or teachings"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="social-services">Social, legal, or welfare services:</label>
+                    <textarea id="social-services" name="social-services" rows="3" placeholder="Enter social, legal, or welfare services"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 6: Professional & Public Life -->
+            <section class="form-section">
+                <h2 class="section-number">6</h2>
+                <h3 class="section-title">Professional & Public Life</h3>
+                
+                <div class="form-group">
+                    <label for="main-profession">Main Profession(s):</label>
+                    <textarea id="main-profession" name="main-profession" rows="2" placeholder="Enter main profession(s)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="government-positions">Government / Public Positions Held:</label>
+                    <textarea id="government-positions" name="government-positions" rows="3" placeholder="Enter government or public positions held"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="community-leadership">Community Leadership or Recognition:</label>
+                    <textarea id="community-leadership" name="community-leadership" rows="3" placeholder="Enter community leadership or recognition"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 7: Migration & Historical Notes -->
+            <section class="form-section">
+                <h2 class="section-number">7</h2>
+                <h3 class="section-title">Migration & Historical Notes</h3>
+                
+                <div class="form-group">
+                    <label for="original-homeland">Original Homeland:</label>
+                    <input type="text" id="original-homeland" name="original-homeland" placeholder="Enter original homeland">
+                </div>
+
+                <div class="form-group">
+                    <label for="migration-period">Migration Period & Reasons:</label>
+                    <textarea id="migration-period" name="migration-period" rows="3" placeholder="Enter migration period and reasons"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="historical-events">Major Historical Events Related to the Family:</label>
+                    <textarea id="historical-events" name="historical-events" rows="4" placeholder="Enter major historical events related to the family"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 8: Sources & Verification -->
+            <section class="form-section">
+                <h2 class="section-number">8</h2>
+                <h3 class="section-title">Sources & Verification</h3>
+                
+                <div class="form-group">
+                    <label for="written-records">Written Records (documents, certificates):</label>
+                    <textarea id="written-records" name="written-records" rows="3" placeholder="List written records, documents, certificates"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="oral-sources">Oral Sources (elders' testimonies):</label>
+                    <textarea id="oral-sources" name="oral-sources" rows="3" placeholder="List oral sources and elders' testimonies"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="grave-inscriptions">Grave inscriptions / historical records:</label>
+                    <textarea id="grave-inscriptions" name="grave-inscriptions" rows="3" placeholder="Enter grave inscriptions or historical records"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 9: Family Traditions & Values -->
+            <section class="form-section">
+                <h2 class="section-number">9</h2>
+                <h3 class="section-title">Family Traditions & Values</h3>
+                
+                <div class="form-group">
+                    <label for="religious-practices">Religious practices:</label>
+                    <textarea id="religious-practices" name="religious-practices" rows="3" placeholder="Describe religious practices"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="cultural-customs">Cultural customs:</label>
+                    <textarea id="cultural-customs" name="cultural-customs" rows="3" placeholder="Describe cultural customs"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="ethical-values">Ethical values passed through generations:</label>
+                    <textarea id="ethical-values" name="ethical-values" rows="3" placeholder="Describe ethical values passed through generations"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 10: Visual & Supporting Material -->
+            <section class="form-section">
+                <h2 class="section-number">10</h2>
+                <h3 class="section-title">Visual & Supporting Material</h3>
+                
+                <div class="form-row">
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="has-photos" name="has-photos">
+                            Old Photographs (yes / no)
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="has-documents" name="has-documents">
+                            Documents Attached (yes / no)
+                        </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="has-tree-chart" name="has-tree-chart">
+                            Family Tree Chart Attached (yes / no)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="material-notes">Additional Notes on Supporting Material:</label>
+                    <textarea id="material-notes" name="material-notes" rows="3" placeholder="Add any additional notes about supporting material"></textarea>
+                </div>
+            </section>
+
+            <!-- Section 11: Compiler's Details -->
+            <section class="form-section">
+                <h2 class="section-number">11</h2>
+                <h3 class="section-title">Compiler's Details</h3>
+                
+                <div class="form-group">
+                    <label for="compiler-name">Compiled By:</label>
+                    <input type="text" id="compiler-name" name="compiler-name" placeholder="Enter compiler's name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="compilation-date">Date of Compilation:</label>
+                        <input type="date" id="compilation-date" name="compilation-date">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="compiler-contact">Contact Information:</label>
+                        <input type="text" id="compiler-contact" name="compiler-contact" placeholder="Enter contact information">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="compiler-notes">Notes / Clarifications:</label>
+                    <textarea id="compiler-notes" name="compiler-notes" rows="4" placeholder="Enter any notes or clarifications"></textarea>
+                </div>
+            </section>
+
+            <!-- Declaration -->
+            <section class="form-section declaration-section">
+                <h3 class="section-title">Declaration</h3>
+                <div class="declaration-box">
+                    <p>This genealogy has been prepared with utmost care based on available documents, family records, and reliable oral traditions. Any uncertain information has been clearly identified. This form will be used to map the tree for the lineage.</p>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="declaration-accept" name="declaration-accept" required>
+                            I acknowledge and accept this declaration
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PDF & Email Options -->
+            <section class="form-section pdf-email-section">
+                <h3 class="section-title">PDF Generation & Email Options</h3>
+                <div class="pdf-email-options">
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="generate-pdf" name="generate-pdf">
+                            <strong>Generate PDF Document</strong> - Create a PDF file of this form when submitted
+                        </label>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="email-pdf" name="email-pdf">
+                            <strong>Email PDF to Administrator</strong> - Send the generated PDF to: <a href="mailto:abdinzaghi@gmail.com" class="email-link">abdinzaghi@gmail.com</a>
+                        </label>
+                    </div>
+                    <div class="email-info">
+                        <p><strong>Note:</strong> If you select "Email PDF", the PDF will be generated and you'll be prompted to send it via your email client. Alternatively, you can manually email the PDF file to <strong>abdinzaghi@gmail.com</strong>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <div class="form-actions-info">
+                    <small>Form #<span id="action-form-number">New</span> | Version <span id="action-version">1.0</span></small>
+                </div>
+                <div class="form-actions-buttons">
+                    <button type="button" class="btn btn-secondary" id="save-draft-btn">💾 Save as Draft</button>
+                    <button type="button" class="btn btn-secondary" id="export-pdf-btn">📄 Export to PDF</button>
+                    <button type="button" class="btn btn-secondary" id="export-json-btn">📥 Export to JSON</button>
+                    <button type="button" class="btn btn-secondary" id="load-data-btn">📂 Load Saved Data</button>
+                    <button type="reset" class="btn btn-danger">🔄 Reset Form</button>
+                    <button type="submit" class="btn btn-primary">✅ Submit & Generate Tree</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="form-script.js"></script>
+</body>
+</html>
