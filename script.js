@@ -142,7 +142,7 @@ function updateTreeStatus(hasFormData, message = '') {
     if (!statusDiv) return;
 
     const lastUpdate = localStorage.getItem('genealogy-last-update');
-    const updateTime = lastUpdate ? new Date(lastUpdate).toLocaleString() : 'Never';
+    const updateTime = lastUpdate ? new Date(lastUpdate).toLocaleString() : '';
     const currentLang = localStorage.getItem('preferred-language') || 'en';
 
     if (hasFormData) {
@@ -155,14 +155,8 @@ function updateTreeStatus(hasFormData, message = '') {
             </div>
         `;
     } else {
-        const defaultMsg = currentLang === 'ur' ? 'پہلے سے طے شدہ خاندانی درخت کا ڈیٹا استعمال کر رہے ہیں' : (message || 'Using default family tree data');
-        const fillForm = currentLang === 'ur' ? 'فارم بھریں' : 'Fill Form';
-        statusDiv.innerHTML = `
-            <div class="status-badge info">
-                <span>i</span> ${defaultMsg}
-                <a href="genealogy-form.html" class="goto-form-link">${fillForm} &rarr;</a>
-            </div>
-        `;
+        // No form link shown to public visitors
+        statusDiv.innerHTML = '';
     }
 }
 
@@ -600,7 +594,6 @@ document.addEventListener('DOMContentLoaded', function() {
     createHTMLFamilyTree(familyData, 'family-tree');
 
     setupAutoRefresh();
-    addRefreshButton();
     initializeSearch();
     initializeStatistics();
     initializeTimeline();
