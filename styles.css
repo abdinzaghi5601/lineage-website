@@ -556,16 +556,28 @@ body[dir="rtl"] .search-input {
 }
 
 #family-tree {
-    min-height: 200px;
-    background: var(--card-bg);
+    min-height: 280px;
+    background: linear-gradient(180deg, rgba(26, 26, 46, 0.02) 0%, rgba(240, 242, 245, 0.5) 100%);
     border-radius: var(--radius);
-    padding: 40px 24px;
-    box-shadow: var(--shadow-sm);
+    padding: 48px 32px 56px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), var(--shadow-sm);
     overflow-x: auto;
     overflow-y: visible;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: 1px solid var(--border);
+    position: relative;
+}
+
+#family-tree::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: radial-gradient(circle at 1px 1px, rgba(15, 52, 96, 0.04) 1px, transparent 0);
+    background-size: 24px 24px;
+    pointer-events: none;
 }
 
 /* ========== FAMILY DETAILS ========== */
@@ -900,22 +912,30 @@ body[dir="rtl"] .search-input {
     fill: none;
 }
 
-/* HTML-based Tree Styles */
+/* HTML-based Tree — diagram layout */
 .tree-node-html {
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
+    margin-bottom: 0;
 }
+
+/* Spacing between generations */
+.tree-node-html.level-0 { --tree-gap: 36px; }
+.tree-node-html.level-1 { --tree-gap: 32px; }
+.tree-node-html.level-2 { --tree-gap: 28px; }
+.tree-node-html.level-3 { --tree-gap: 24px; }
 
 .tree-node-card {
     background: var(--card-bg);
-    border-radius: var(--radius-sm);
-    padding: 10px 10px;
-    box-shadow: var(--shadow-sm);
-    width: 170px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    width: 200px;
+    min-height: 72px;
     text-align: center;
-    transition: all var(--transition);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border: 2px solid transparent;
     position: relative;
@@ -931,11 +951,12 @@ body[dir="rtl"] .search-input {
     left: 0;
     right: 0;
     height: 4px;
+    border-radius: 12px 12px 0 0;
 }
 
 .tree-node-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
     z-index: 2;
 }
 
@@ -953,10 +974,10 @@ body[dir="rtl"] .search-input {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .tree-node-card.child-node .tree-card-bottom {
@@ -965,18 +986,19 @@ body[dir="rtl"] .search-input {
 
 /* Member count badge */
 .tree-member-badge {
-    font-size: 0.68em;
+    font-size: 0.7em;
     font-weight: 600;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 50px;
-    background: rgba(255, 255, 255, 0.2);
-    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.25);
+    opacity: 0.95;
     white-space: nowrap;
+    letter-spacing: 0.02em;
 }
 
 .tree-node-card.child-node .tree-member-badge {
-    background: var(--bg);
-    color: var(--text-light);
+    background: rgba(15, 52, 96, 0.08);
+    color: var(--secondary);
 }
 
 /* Expand/collapse chevron */
@@ -985,7 +1007,7 @@ body[dir="rtl"] .search-input {
     align-items: center;
     justify-content: center;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 .tree-node-card.expanded .tree-chevron {
@@ -997,11 +1019,11 @@ body[dir="rtl"] .search-input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     cursor: pointer;
     transition: all var(--transition);
     color: inherit;
@@ -1009,8 +1031,8 @@ body[dir="rtl"] .search-input {
 }
 
 .tree-info-btn:hover {
-    background: rgba(255, 255, 255, 0.35);
-    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.12);
 }
 
 .tree-node-card.child-node .tree-info-btn {
@@ -1023,99 +1045,124 @@ body[dir="rtl"] .search-input {
     color: white;
 }
 
-/* Node style variations */
+/* Root: prominent top ancestor */
 .tree-node-card.root-node {
-    background: var(--gradient-primary);
+    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 45%, #0f3460 100%);
     color: white;
     border: none;
-    min-width: 180px;
+    min-width: 220px;
+    padding: 18px 20px;
+    box-shadow: 0 8px 24px rgba(26, 26, 46, 0.35), 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .tree-node-card.root-node::before {
-    background: var(--gradient-accent);
+    background: linear-gradient(90deg, #e94560, #ff6b81);
     height: 5px;
 }
 
+.tree-node-card.root-node:hover {
+    box-shadow: 0 14px 32px rgba(26, 26, 46, 0.4), 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* First generation */
 .tree-node-card.first-gen {
-    background: var(--secondary);
+    background: linear-gradient(145deg, #0f3460 0%, #16213e 100%);
     color: white;
     border: none;
+    min-width: 200px;
+    box-shadow: 0 4px 16px rgba(15, 52, 96, 0.25);
 }
 
 .tree-node-card.first-gen::before {
-    background: var(--gradient-cool);
-    height: 5px;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+    height: 4px;
 }
 
+/* Child nodes (later generations) */
 .tree-node-card.child-node {
     background: white;
     color: var(--text);
     border: 2px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .tree-node-card.child-node::before {
-    background: var(--gradient-gold);
+    background: linear-gradient(90deg, #f6d365, #fda085);
+    height: 4px;
 }
 
 .tree-node-card.child-node:hover {
     border-color: var(--secondary);
+    box-shadow: 0 6px 16px rgba(15, 52, 96, 0.12);
 }
 
 .tree-node-name {
-    font-size: 0.82em;
-    font-weight: 600;
-    margin-bottom: 1px;
-    line-height: 1.2;
+    font-size: 0.88em;
+    font-weight: 700;
+    margin-bottom: 2px;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
 }
 
+.tree-node-card.root-node .tree-node-name { font-size: 0.95em; }
+.tree-node-card.first-gen .tree-node-name { font-size: 0.9em; }
+
 .tree-node-title {
-    font-size: 0.8em;
-    margin-bottom: 4px;
-    opacity: 0.85;
+    font-size: 0.82em;
+    margin-bottom: 6px;
+    opacity: 0.9;
+    font-family: 'Noto Sans Arabic', 'Arial', sans-serif;
 }
 
 .tree-node-desc {
-    font-size: 0.75em;
-    opacity: 0.75;
-    line-height: 1.3;
-    max-height: 2.6em;
+    font-size: 0.76em;
+    opacity: 0.8;
+    line-height: 1.35;
+    max-height: 2.8em;
     overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
-/* ========== CONNECTOR LINES ========== */
+/* ========== CONNECTOR LINES (diagram-style) ========== */
 
-/* Vertical line down from parent to horizontal bar */
+/* Vertical stem from parent card down to branch */
 .tree-line-down {
-    width: 2px;
-    height: 14px;
-    background: var(--secondary);
+    width: 3px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%);
     margin: 0 auto;
-    transition: opacity 0.3s ease;
+    border-radius: 2px;
+    transition: opacity 0.3s ease, height 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(15, 52, 96, 0.2);
 }
 
-/* Horizontal bar connecting siblings */
+/* Horizontal branch connecting siblings */
 .tree-line-horiz {
-    height: 2px;
-    background: var(--secondary);
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, var(--secondary) 10%, var(--secondary) 90%, transparent 100%);
     margin: 0 auto;
-    /* Stretch to span from first child center to last child center */
-    width: calc(100% - 100% / var(--child-count, 3));
+    width: calc(100% - 120px);
+    min-width: 80px;
     max-width: 90%;
-    transition: opacity 0.3s ease;
+    border-radius: 2px;
+    transition: opacity 0.3s ease, height 0.3s ease;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(15, 52, 96, 0.15);
 }
 
-/* Set child count via attribute for width calc — fallback handled in JS */
-.tree-children[data-count="2"] ~ .tree-line-horiz,
-.tree-node-html > .tree-line-horiz {
-    /* Default width works fine */
-}
-
-/* Vertical line up from horizontal bar to each child */
+/* Vertical drop from branch to each child card */
 .tree-line-up {
-    width: 2px;
-    height: 14px;
-    background: var(--secondary);
+    width: 3px;
+    height: 24px;
+    background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
     margin: 0 auto;
+    border-radius: 2px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(15, 52, 96, 0.2);
 }
 
 /* Hide lines when collapsed */
@@ -1123,35 +1170,41 @@ body[dir="rtl"] .search-input {
 .tree-line-horiz.collapsed {
     opacity: 0;
     height: 0;
+    min-height: 0;
     overflow: hidden;
+    margin: 0;
 }
 
-/* ========== CHILDREN ROW ========== */
+/* ========== CHILDREN ROW (diagram layout) ========== */
 .tree-children {
     display: flex;
     justify-content: center;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 20px;
     overflow: hidden;
-    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+    padding-top: 4px;
 }
 
 .tree-children.collapsed {
     max-height: 0 !important;
     opacity: 0;
     pointer-events: none;
+    padding-top: 0;
+    margin-top: 0;
 }
 
 .tree-children.expanding {
     opacity: 1;
-    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
 }
 
 .tree-children.collapsing {
     opacity: 0;
-    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
 
-/* Each child wrapper holds the line-up + the node */
+/* Each child: vertical line + node */
 .tree-child-wrapper {
     display: flex;
     flex-direction: column;
@@ -1160,28 +1213,32 @@ body[dir="rtl"] .search-input {
     min-width: 0;
 }
 
-/* Level sizing */
+/* Level-based card sizing for visual hierarchy */
 .level-0 > .tree-node-card {
-    font-size: 0.88em;
-    padding: 12px 12px;
-    width: 190px;
+    font-size: 0.9em;
+    padding: 18px 20px;
+    width: 220px;
+    min-width: 220px;
 }
 
 .level-1 > .tree-node-card {
-    font-size: 0.82em;
-    width: 170px;
+    font-size: 0.86em;
+    width: 200px;
+    min-width: 200px;
 }
 
 .level-2 > .tree-node-card {
-    font-size: 0.78em;
-    padding: 8px 10px;
-    width: 155px;
+    font-size: 0.82em;
+    padding: 12px 14px;
+    width: 180px;
+    min-width: 180px;
 }
 
 .level-3 > .tree-node-card {
-    font-size: 0.75em;
-    padding: 7px 8px;
-    width: 140px;
+    font-size: 0.78em;
+    padding: 10px 12px;
+    width: 165px;
+    min-width: 165px;
 }
 
 /* ========== TREE STATUS ========== */
@@ -1420,7 +1477,8 @@ footer {
     .tree-children {
         flex-direction: column;
         align-items: center;
-        gap: 0;
+        gap: 12px;
+        padding-top: 8px;
     }
 
     .tree-line-horiz {
@@ -1428,29 +1486,44 @@ footer {
     }
 
     .tree-line-up {
-        display: none;
+        height: 16px;
+        width: 2px;
     }
 
     .tree-line-down {
         height: 20px;
+        width: 2px;
     }
 
     .tree-child-wrapper {
         width: 100%;
-        max-width: 320px;
+        max-width: 340px;
     }
 
     .tree-child-wrapper + .tree-child-wrapper {
-        margin-top: 8px;
+        margin-top: 4px;
     }
 
     .tree-node-card {
         width: 100% !important;
-        max-width: 320px;
+        min-width: 0 !important;
+        max-width: 340px;
+    }
+
+    .level-0 > .tree-node-card,
+    .level-1 > .tree-node-card,
+    .level-2 > .tree-node-card,
+    .level-3 > .tree-node-card {
+        width: 100% !important;
+        min-width: 0 !important;
     }
 
     .tree-member-badge {
-        font-size: 0.7em;
+        font-size: 0.72em;
+    }
+
+    #family-tree {
+        padding: 32px 16px 40px;
     }
 
     .modal-content {
