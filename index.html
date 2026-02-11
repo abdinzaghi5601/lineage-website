@@ -5,6 +5,7 @@
     <meta name="description" content="Family lineage and genealogy of Munawwar Chand Sahib — Waheed family. Ancestral homeland Hyderabad.">
     <title>Family Lineage - Munawwar Chand Sahib / Waheed Family</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -39,12 +40,26 @@
                         <input type="text" id="family-search" class="search-input" data-i18n="search-placeholder" placeholder="Search family members by name..." aria-label="Search family members">
                     </div>
                     <div class="filter-options">
-                        <select id="filter-generation" class="filter-select" aria-label="Filter by generation">
-                            <option value="" data-i18n="filter-all-generations">All Generations</option>
-                        </select>
-                        <select id="filter-profession" class="filter-select" aria-label="Filter by profession">
-                            <option value="" data-i18n="filter-all-professions">All Professions</option>
-                        </select>
+                        <div class="custom-dropdown" id="filter-generation-dropdown" aria-label="Filter by generation">
+                            <button class="custom-dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="custom-dropdown-label" data-i18n="filter-all-generations">All Generations</span>
+                                <svg class="custom-dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <ul class="custom-dropdown-menu" role="listbox" id="filter-generation-list">
+                                <li class="custom-dropdown-item selected" data-value="" role="option" aria-selected="true" data-i18n="filter-all-generations">All Generations</li>
+                            </ul>
+                            <input type="hidden" id="filter-generation" value="">
+                        </div>
+                        <div class="custom-dropdown" id="filter-profession-dropdown" aria-label="Filter by profession">
+                            <button class="custom-dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="custom-dropdown-label" data-i18n="filter-all-professions">All Professions</span>
+                                <svg class="custom-dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <ul class="custom-dropdown-menu" role="listbox" id="filter-profession-list">
+                                <li class="custom-dropdown-item selected" data-value="" role="option" aria-selected="true" data-i18n="filter-all-professions">All Professions</li>
+                            </ul>
+                            <input type="hidden" id="filter-profession" value="">
+                        </div>
                         <button id="clear-filters" class="btn-filter" data-i18n="clear-filters">Clear Filters</button>
                     </div>
                 </div>
@@ -90,6 +105,7 @@
                 <button class="view-toggle-btn active" data-view="tree" id="tree-view-btn" data-i18n="view-tree" aria-pressed="true">Tree View</button>
                 <button class="view-toggle-btn" data-view="horizontal" id="horizontal-view-btn" data-i18n="view-horizontal" aria-pressed="false">Horizontal</button>
                 <button class="view-toggle-btn" data-view="timeline" id="timeline-view-btn" data-i18n="view-timeline" aria-pressed="false">Timeline View</button>
+                <button class="view-toggle-btn" data-view="map" id="map-view-btn" aria-pressed="false">Map</button>
                 <button class="view-toggle-btn" data-view="stats" id="stats-view-btn" data-i18n="view-stats" aria-pressed="false">Statistics</button>
             </div>
 
@@ -97,6 +113,12 @@
             <div id="timeline-container" class="timeline-container" style="display: none;" role="region" aria-label="Family Timeline">
                 <h2 class="section-title" data-i18n="timeline-title">Family Timeline</h2>
                 <div id="timeline-content" class="timeline-content"></div>
+            </div>
+
+            <!-- Map View Container -->
+            <div id="map-container" class="map-container" style="display: none;" role="region" aria-label="Family Map">
+                <h2 class="section-title">Family Map</h2>
+                <div id="family-map" class="family-map"></div>
             </div>
 
             <div class="intro-section">
@@ -246,6 +268,7 @@
         </footer>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="translations.js"></script>
     <script src="script.js"></script>
 </body>

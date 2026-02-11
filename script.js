@@ -516,13 +516,13 @@ function createHTMLFamilyTree(data, container) {
 
                 if (isCollapsed) {
                     childrenRow.classList.remove('collapsed');
-                    childrenRow.classList.add('expanding');
+                    childrenRow.classList.add('expanding', 'animating');
                     lines.forEach(l => l.classList.remove('collapsed'));
                     card.classList.add('expanded');
                     const height = childrenRow.scrollHeight;
                     childrenRow.style.maxHeight = height + 'px';
                     setTimeout(() => {
-                        childrenRow.classList.remove('expanding');
+                        childrenRow.classList.remove('expanding', 'animating');
                         childrenRow.style.maxHeight = 'none';
                         // Scroll expanded area into view inside the tree container
                         const treeContainer = document.getElementById('family-tree');
@@ -532,6 +532,7 @@ function createHTMLFamilyTree(data, container) {
                     }, 380);
                 } else {
                     const height = childrenRow.scrollHeight;
+                    childrenRow.classList.add('animating');
                     childrenRow.style.maxHeight = height + 'px';
                     childrenRow.offsetHeight;
                     childrenRow.classList.add('collapsing');
@@ -539,7 +540,7 @@ function createHTMLFamilyTree(data, container) {
                     lines.forEach(l => l.classList.add('collapsed'));
                     card.classList.remove('expanded');
                     setTimeout(() => {
-                        childrenRow.classList.remove('collapsing');
+                        childrenRow.classList.remove('collapsing', 'animating');
                         childrenRow.classList.add('collapsed');
                         childrenRow.style.maxHeight = '';
                     }, 350);
@@ -935,19 +936,114 @@ function highlightText(element, term) {
     });
 }
 
+// ========== CUSTOM DROPDOWN LOGIC ==========
+
+function initializeCustomDropdowns() {
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const trigger = dropdown.querySelector('.custom-dropdown-trigger');
+        if (!trigger || trigger.hasAttribute('data-dropdown-init')) return;
+        trigger.setAttribute('data-dropdown-init', 'true');
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dropdown.classList.contains('open');
+            // Close all dropdowns
+            document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+            if (!isOpen) {
+                dropdown.classList.add('open');
+                trigger.setAttribute('aria-expanded', 'true');
+            } else {
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Keyboard support
+        trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                trigger.click();
+            } else if (e.key === 'Escape') {
+                dropdown.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    if (!document._dropdownCloseInit) {
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                d.classList.remove('open');
+                d.querySelector('.custom-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+            });
+        });
+        document._dropdownCloseInit = true;
+    }
+}
+
+function setCustomDropdownValue(dropdownId, value, label) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    const hidden = dropdown.querySelector('input[type="hidden"]');
+    const labelEl = dropdown.querySelector('.custom-dropdown-label');
+    const items = dropdown.querySelectorAll('.custom-dropdown-item');
+
+    if (hidden) hidden.value = value;
+    if (labelEl) labelEl.textContent = label;
+
+    items.forEach(item => {
+        item.classList.toggle('selected', item.getAttribute('data-value') === value);
+        item.setAttribute('aria-selected', item.getAttribute('data-value') === value ? 'true' : 'false');
+    });
+
+    dropdown.classList.remove('open');
+    dropdown.querySelector('.custom-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+}
+
+function populateCustomDropdown(dropdownId, listId, options, defaultLabel) {
+    const list = document.getElementById(listId);
+    if (!list) return;
+
+    // Clear existing items
+    list.innerHTML = '';
+
+    // Add default "All" item
+    const defaultItem = document.createElement('li');
+    defaultItem.className = 'custom-dropdown-item selected';
+    defaultItem.setAttribute('data-value', '');
+    defaultItem.setAttribute('role', 'option');
+    defaultItem.setAttribute('aria-selected', 'true');
+    defaultItem.textContent = defaultLabel;
+    defaultItem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setCustomDropdownValue(dropdownId, '', defaultLabel);
+        applyFilters();
+    });
+    list.appendChild(defaultItem);
+
+    // Add option items
+    options.forEach(opt => {
+        const item = document.createElement('li');
+        item.className = 'custom-dropdown-item';
+        item.setAttribute('data-value', opt);
+        item.setAttribute('role', 'option');
+        item.setAttribute('aria-selected', 'false');
+        item.textContent = opt;
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setCustomDropdownValue(dropdownId, opt, opt);
+            applyFilters();
+        });
+        list.appendChild(item);
+    });
+}
+
 // Populate filter dropdowns
 function populateFilters() {
-    const genFilter = document.getElementById('filter-generation');
-    const profFilter = document.getElementById('filter-profession');
+    const genHidden = document.getElementById('filter-generation');
+    const profHidden = document.getElementById('filter-profession');
 
-    if (!genFilter || !profFilter) return;
-
-    while (genFilter.children.length > 1) {
-        genFilter.removeChild(genFilter.lastChild);
-    }
-    while (profFilter.children.length > 1) {
-        profFilter.removeChild(profFilter.lastChild);
-    }
+    if (!genHidden || !profHidden) return;
 
     const data = familyData;
     const generations = new Set();
@@ -1034,39 +1130,24 @@ function populateFilters() {
         }
     }
 
-    Array.from(generations).sort((a, b) => {
+    const genOptions = Array.from(generations).sort((a, b) => {
         const numA = parseInt(a.match(/\d+/)?.[0] || 0);
         const numB = parseInt(b.match(/\d+/)?.[0] || 0);
         return numA - numB;
-    }).forEach(gen => {
-        const option = document.createElement('option');
-        option.value = gen;
-        option.textContent = gen;
-        genFilter.appendChild(option);
     });
 
-    Array.from(professions).sort().filter(p => p && p.length > 2).slice(0, 20).forEach(prof => {
-        const option = document.createElement('option');
-        option.value = prof;
-        option.textContent = prof;
-        profFilter.appendChild(option);
-    });
+    const profOptions = Array.from(professions).sort().filter(p => p && p.length > 2).slice(0, 20);
 
-    if (!genFilter.hasAttribute('data-listener-added')) {
-        genFilter.addEventListener('change', applyFilters);
-        genFilter.setAttribute('data-listener-added', 'true');
-    }
+    populateCustomDropdown('filter-generation-dropdown', 'filter-generation-list', genOptions, 'All Generations');
+    populateCustomDropdown('filter-profession-dropdown', 'filter-profession-list', profOptions, 'All Professions');
 
-    if (!profFilter.hasAttribute('data-listener-added')) {
-        profFilter.addEventListener('change', applyFilters);
-        profFilter.setAttribute('data-listener-added', 'true');
-    }
+    initializeCustomDropdowns();
 
     const clearBtn = document.getElementById('clear-filters');
     if (clearBtn && !clearBtn.hasAttribute('data-listener-added')) {
         clearBtn.addEventListener('click', function() {
-            genFilter.value = '';
-            profFilter.value = '';
+            setCustomDropdownValue('filter-generation-dropdown', '', 'All Generations');
+            setCustomDropdownValue('filter-profession-dropdown', '', 'All Professions');
             document.getElementById('family-search').value = '';
             applyFilters();
             performSearch('');
@@ -1076,8 +1157,10 @@ function populateFilters() {
 }
 
 function applyFilters() {
-    const genFilter = document.getElementById('filter-generation').value;
-    const profFilter = document.getElementById('filter-profession').value;
+    const genFilterEl = document.getElementById('filter-generation');
+    const profFilterEl = document.getElementById('filter-profession');
+    const genFilter = genFilterEl ? genFilterEl.value : '';
+    const profFilter = profFilterEl ? profFilterEl.value : '';
     const searchTerm = document.getElementById('family-search').value.toLowerCase();
 
     document.querySelectorAll('.person-card, .generation-section, .tree-node-card').forEach(el => {
@@ -1254,6 +1337,7 @@ function initializeViewToggles() {
     const treeViewBtn = document.getElementById('tree-view-btn');
     const horizontalViewBtn = document.getElementById('horizontal-view-btn');
     const timelineViewBtn = document.getElementById('timeline-view-btn');
+    const mapViewBtn = document.getElementById('map-view-btn');
     const statsViewBtn = document.getElementById('stats-view-btn');
 
     if (!treeViewBtn) return;
@@ -1261,6 +1345,7 @@ function initializeViewToggles() {
     treeViewBtn.addEventListener('click', () => switchView('tree'));
     if (horizontalViewBtn) horizontalViewBtn.addEventListener('click', () => switchView('horizontal'));
     timelineViewBtn.addEventListener('click', () => switchView('timeline'));
+    if (mapViewBtn) mapViewBtn.addEventListener('click', () => switchView('map'));
     statsViewBtn.addEventListener('click', () => switchView('stats'));
 }
 
@@ -1276,13 +1361,20 @@ function switchView(view) {
     const treeContainer = document.querySelector('.family-tree-container');
     const treeDetails = document.querySelector('.family-details');
     const timelineContainer = document.getElementById('timeline-container');
+    const mapContainer = document.getElementById('map-container');
     const statsDashboard = document.querySelector('.stats-dashboard');
+
+    // Hide all view-specific containers
+    if (treeContainer) treeContainer.style.display = 'none';
+    if (treeDetails) treeDetails.style.display = 'none';
+    if (timelineContainer) timelineContainer.style.display = 'none';
+    if (mapContainer) mapContainer.style.display = 'none';
+    if (statsDashboard) statsDashboard.style.display = 'none';
 
     if (view === 'tree') {
         currentTreeView = 'tree';
         if (treeContainer) treeContainer.style.display = 'block';
         if (treeDetails) treeDetails.style.display = 'block';
-        if (timelineContainer) timelineContainer.style.display = 'none';
         if (statsDashboard) statsDashboard.style.display = 'block';
         const treeEl = document.getElementById('family-tree');
         if (treeEl) {
@@ -1293,25 +1385,177 @@ function switchView(view) {
         currentTreeView = 'horizontal';
         if (treeContainer) treeContainer.style.display = 'block';
         if (treeDetails) treeDetails.style.display = 'block';
-        if (timelineContainer) timelineContainer.style.display = 'none';
         if (statsDashboard) statsDashboard.style.display = 'block';
         const treeEl = document.getElementById('family-tree');
         if (treeEl) {
             createHorizontalFamilyTree(familyData, 'family-tree');
         }
     } else if (view === 'timeline') {
-        if (treeContainer) treeContainer.style.display = 'none';
-        if (treeDetails) treeDetails.style.display = 'none';
         if (timelineContainer) timelineContainer.style.display = 'block';
-        if (statsDashboard) statsDashboard.style.display = 'none';
         generateTimeline();
+    } else if (view === 'map') {
+        if (mapContainer) mapContainer.style.display = 'block';
+        initializeMap();
     } else if (view === 'stats') {
-        if (treeContainer) treeContainer.style.display = 'none';
-        if (treeDetails) treeDetails.style.display = 'none';
-        if (timelineContainer) timelineContainer.style.display = 'none';
         if (statsDashboard) statsDashboard.style.display = 'block';
         calculateStatistics();
     }
+}
+
+// ========== MAP VIEW ==========
+
+let familyMap = null;
+
+// Known location coordinates (no external geocoding needed)
+const knownLocations = {
+    'hyderabad': { lat: 17.385, lng: 78.4867, label: 'Hyderabad, India' },
+    'qatar': { lat: 25.2854, lng: 51.531, label: 'Doha, Qatar' },
+    'doha': { lat: 25.2854, lng: 51.531, label: 'Doha, Qatar' },
+    'moulali': { lat: 17.3753, lng: 78.4977, label: 'Moulali, Hyderabad' },
+    'umrabad': { lat: 16.0167, lng: 78.1333, label: 'Umrabad, India' },
+    'king faisal university': { lat: 25.3748, lng: 49.5883, label: 'King Faisal University, Saudi Arabia' },
+    'saudi arabia': { lat: 24.7136, lng: 46.6753, label: 'Saudi Arabia' },
+    'new srinagar colony': { lat: 17.3753, lng: 78.4977, label: 'New Srinagar Colony, Hyderabad' },
+};
+
+function initializeMap() {
+    const mapEl = document.getElementById('family-map');
+    if (!mapEl || !window.L) return;
+
+    if (familyMap) {
+        familyMap.remove();
+        familyMap = null;
+    }
+
+    familyMap = L.map('family-map').setView([17.385, 78.4867], 4);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 18
+    }).addTo(familyMap);
+
+    const locations = collectLocations(familyData);
+    plotLocations(locations);
+
+    // Ensure map renders correctly after container becomes visible
+    setTimeout(() => {
+        familyMap.invalidateSize();
+        if (locations.length > 0) {
+            const group = L.featureGroup(locations.map(loc => L.marker([loc.lat, loc.lng])));
+            familyMap.fitBounds(group.getBounds().pad(0.3));
+        }
+    }, 200);
+}
+
+function findNodeLocation(node) {
+    const desc = (node.description || '').toLowerCase();
+    for (const [key, coords] of Object.entries(knownLocations)) {
+        if (desc.includes(key)) {
+            let type = 'Mentioned';
+            if (desc.includes('residence') || desc.includes('residence:')) type = 'Residence';
+            else if (desc.includes('born') || desc.includes('birth')) type = 'Birthplace';
+            else if (desc.includes('homeland') || desc.includes('ancestral')) type = 'Ancestral Homeland';
+            else if (desc.includes('buried') || desc.includes('burial')) type = 'Burial Place';
+            return { coords, type };
+        }
+    }
+    return null;
+}
+
+function collectLocations(node, level = 0, parentLocation = null) {
+    const locations = [];
+
+    if (node.name) {
+        const name = node.name;
+        const ownLocation = findNodeLocation(node);
+
+        // Use own location, or inherit from parent, or default to Hyderabad for root
+        const loc = ownLocation
+            || parentLocation
+            || (level === 0 ? { coords: knownLocations['hyderabad'], type: 'Ancestral Homeland' } : null);
+
+        if (loc) {
+            const offset = 0.008; // spread markers so they don't stack
+            locations.push({
+                lat: loc.coords.lat + (Math.random() - 0.5) * offset,
+                lng: loc.coords.lng + (Math.random() - 0.5) * offset,
+                name: name,
+                description: node.description || '',
+                type: ownLocation ? loc.type : 'Family (inherited)',
+                label: loc.coords.label,
+                level: level
+            });
+        }
+
+        // Pass this node's location (or inherited) down to children
+        const locationForChildren = ownLocation || parentLocation
+            || (level === 0 ? { coords: knownLocations['hyderabad'], type: 'Ancestral Homeland' } : null);
+
+        if (node.children) {
+            node.children.forEach(child => {
+                locations.push(...collectLocations(child, level + 1, locationForChildren));
+            });
+        }
+    }
+
+    return locations;
+}
+
+function plotLocations(locations) {
+    if (!familyMap) return;
+
+    // Group locations by place label
+    const groups = {};
+    locations.forEach(loc => {
+        if (!groups[loc.label]) groups[loc.label] = [];
+        groups[loc.label].push(loc);
+    });
+
+    for (const [label, members] of Object.entries(groups)) {
+        // Use the average lat/lng for the group marker position
+        const avgLat = members.reduce((s, m) => s + m.lat, 0) / members.length;
+        const avgLng = members.reduce((s, m) => s + m.lng, 0) / members.length;
+
+        const isHomeland = label === 'Hyderabad, India';
+        const icon = isHomeland
+            ? L.divIcon({
+                className: 'map-homeland-icon',
+                html: `<div style="background:#e94560;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid #fff;">&#9733; ${members.length}</div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            })
+            : L.divIcon({
+                className: 'map-member-icon',
+                html: `<div style="background:#0f3460;color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid #fff;">${members.length}</div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+        const marker = L.marker([avgLat, avgLng], { icon }).addTo(familyMap);
+
+        // Build popup with all members at this location
+        let popupHTML = `<div class="map-popup-name">${escapeHTML(label)}</div>`;
+        popupHTML += `<div class="map-popup-type">${members.length} family member${members.length > 1 ? 's' : ''}</div>`;
+        popupHTML += '<div style="max-height:200px;overflow-y:auto;margin-top:8px;">';
+        members.forEach(m => {
+            popupHTML += `<div style="padding:4px 0;border-bottom:1px solid #eee;">`;
+            popupHTML += `<strong style="font-size:0.9em;">${escapeHTML(m.name)}</strong>`;
+            if (m.description && m.description !== 'Family member') {
+                popupHTML += `<div style="font-size:0.8em;color:#636e72;">${escapeHTML(m.description)}</div>`;
+            }
+            popupHTML += `<div class="map-popup-type">${escapeHTML(m.type)}</div>`;
+            popupHTML += `</div>`;
+        });
+        popupHTML += '</div>';
+
+        marker.bindPopup(popupHTML, { maxWidth: 300, maxHeight: 300 });
+    }
+}
+
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }
 
 // Force update filters
