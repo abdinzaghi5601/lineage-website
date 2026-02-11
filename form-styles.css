@@ -397,6 +397,13 @@
     font-weight: 600;
 }
 
+.generation-relation-hint {
+    margin: -5px 0 15px 0;
+    font-size: 0.95em;
+    color: #555;
+    font-style: italic;
+}
+
 .remove-generation-btn {
     background: var(--accent-color);
     color: white;

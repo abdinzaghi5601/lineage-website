@@ -1,4 +1,5 @@
 // Default Family Tree Data Structure
+// Root: Munawwar Chand Sahib → Abdul Jameel → Abdul Waheed (and his children)
 const defaultFamilyData = {
     name: "Munawwar Chand Sahib",
     title: "(رحمۃ اللہ علیہ)",
@@ -6,15 +7,23 @@ const defaultFamilyData = {
     children: [
         {
             name: "Maulana Abul Jameel Muhammad Yaseen Sahib",
-            title: "(رحمۃ اللہ علیہ)",
-            description: "A distinguished Islamic scholar of his era. Known for outstanding religious and educational contributions.",
+            title: "Abdul Jameel (رحمۃ اللہ علیہ)",
+            description: "A distinguished Islamic scholar of his era. Known for outstanding religious and educational contributions. Ancestral homeland Hyderabad.",
             children: [
                 {
                     name: "Hakeem & Dr. Muhammad Abdus Samad Samdani",
                     title: "(رحمۃ اللہ علیہ)",
                     description: "Eminent physician, Hakeem, and religious scholar. He had eight (8) children.",
+                    children: []
+                },
+                {
+                    name: "Hafiz Abdul Waheed",
+                    description: "Hafiz, teacher, court auditor, religious scholar. Graduate from Umrabad and King Faisal University. Residence: Qatar. Wife: Asma Shaheen.",
                     children: [
-                        { name: "8 Children", description: "Eight (8) children" }
+                        { name: "Farha Yasmeen", description: "Family member" },
+                        { name: "Abdullah", description: "Engineer. Born: 1987-01-05. Compiled this genealogy." },
+                        { name: "Fatima Zeba", description: "Family member" },
+                        { name: "Abdur Rahman", description: "Pharmacist. Born: 1988-12-12" }
                     ]
                 }
             ]
@@ -25,20 +34,11 @@ const defaultFamilyData = {
             children: [
                 {
                     name: "Late Muhammad Abdullah Sahib",
-                    description: "Wife: Lalama (paternal/maternal grandmother). Residence: Near Moulali, Moulali Industrial Area, New Srinagar Colony, Moulali",
+                    description: "Wife: Lalama. Residence: Near Moulali, Moulali Industrial Area, New Srinagar Colony, Moulali",
                     children: [
-                        {
-                            name: "Abdul Mateen",
-                            description: "Three sons and one daughter"
-                        },
-                        {
-                            name: "Abdul Mubeen",
-                            description: "One son and two daughters"
-                        },
-                        {
-                            name: "Abdul Mohsin",
-                            description: "Three daughters"
-                        }
+                        { name: "Abdul Mateen", description: "Three sons and one daughter" },
+                        { name: "Abdul Mubeen", description: "One son and two daughters" },
+                        { name: "Abdul Mohsin", description: "Three daughters" }
                     ]
                 }
             ]

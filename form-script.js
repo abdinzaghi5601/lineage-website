@@ -621,16 +621,20 @@ function addGeneration() {
     const container = document.getElementById('generations-container');
     const generationNumber = formData.generations.length + 1;
     
+    const parentLabel = generationNumber === 1
+        ? 'Child of Earliest Known Ancestor (Section 2) — enter name here:'
+        : 'Child of person in Generation ' + (generationNumber - 1) + ' — enter name here:';
     const generationHTML = `
         <div class="generation-block" data-generation="${generationNumber}">
             <div class="generation-block-header">
                 <h4 class="generation-block-title">Generation No. ${generationNumber}</h4>
                 <button type="button" class="remove-generation-btn" onclick="removeGeneration(${generationNumber})">Remove</button>
             </div>
+            <p class="generation-relation-hint">${parentLabel}</p>
             
             <div class="form-group">
-                <label>Father's Name:</label>
-                <input type="text" name="gen-${generationNumber}-father" placeholder="Enter father's name">
+                <label>Name (person in this generation):</label>
+                <input type="text" name="gen-${generationNumber}-father" placeholder="Enter full name">
             </div>
             
             <div class="form-row">
@@ -710,6 +714,13 @@ function updateGenerationNumbers() {
         const title = block.querySelector('.generation-block-title');
         if (title) title.textContent = `Generation No. ${newNumber}`;
         
+        const hint = block.querySelector('.generation-relation-hint');
+        if (hint) {
+            hint.textContent = newNumber === 1
+                ? 'Child of Earliest Known Ancestor (Section 2) — enter name here:'
+                : 'Child of person in Generation ' + (newNumber - 1) + ' — enter name here:';
+        }
+        
         // Update all input names
         block.querySelectorAll('input, textarea, select').forEach(input => {
             const name = input.getAttribute('name');
@@ -731,7 +742,7 @@ function updateGenerationNumbers() {
         }
         
         // Update children container class
-        const childrenContainer = block.querySelector(`.children-container-${genNumber}`);
+        const childrenContainer = block.querySelector('[class^="children-container-"]');
         if (childrenContainer) {
             childrenContainer.className = `children-container-${newNumber}`;
         }
