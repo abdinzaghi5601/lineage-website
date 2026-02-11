@@ -23,13 +23,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const formNumber = getNextFormNumber();
         currentFormId = 'form-' + Date.now();
         currentFormNumber = formNumber;
-        
+
         document.getElementById('form-id').value = currentFormId;
         document.getElementById('form-number').value = formNumber;
         document.getElementById('form-version').value = '1.0';
         updateFormDisplay();
+
+        // Pre-fill default genealogy data if no saved forms exist
+        const existingForms = getAllForms();
+        if (existingForms.length === 0) {
+            prefillDefaultGenealogy();
+        }
     }
-    
+
     // Check if loading a specific form from URL
     const urlParams = new URLSearchParams(window.location.search);
     const formId = urlParams.get('formId');
@@ -72,6 +78,73 @@ function initializeFormManagement() {
     
     // Load form list on page load
     updateFormDisplay();
+}
+
+// Pre-fill form with default genealogy data
+function prefillDefaultGenealogy() {
+    // Section 1: Family Identification
+    document.getElementById('family-name').value = 'Munawwar Chand / Waheed';
+    document.getElementById('ancestral-title').value = 'Munawwar Chand Sahib (رحمۃ اللہ علیہ)';
+    document.getElementById('ancestral-homeland').value = 'Hyderabad';
+    document.getElementById('present-residence').value = 'Qatar';
+
+    // Section 2: Earliest Known Ancestor
+    document.getElementById('ancestor-name').value = 'Munawwar Chand Sahib';
+    document.getElementById('ancestor-title').value = '(رحمۃ اللہ علیہ)';
+    document.getElementById('ancestor-profession').value = 'Police Patil during the Nizam of Deccan era';
+    document.getElementById('ancestor-notes').value = 'He served under the Nizam of Deccan and was responsible for maintaining law and order. He was widely respected for his integrity, administrative ability, and public service. He had three sons.';
+
+    // Section 11: Compiler
+    document.getElementById('compiler-name').value = 'Abdullah';
+
+    // Section 3: Generation 1 - Maulana Abul Jameel Muhammad Yaseen Sahib
+    addGeneration();
+    const gen1Father = document.querySelector('[name="gen-1-father"]');
+    if (gen1Father) gen1Father.value = 'Maulana Abul Jameel Muhammad Yaseen Sahib';
+    const gen1Prof = document.querySelector('[name="gen-1-profession"]');
+    if (gen1Prof) gen1Prof.value = 'A distinguished Islamic scholar of his era. Known for outstanding religious and educational contributions.';
+    const gen1Res = document.querySelector('[name="gen-1-residence"]');
+    if (gen1Res) gen1Res.value = 'Hyderabad';
+
+    // Gen 1 Children: Dr. Samdani and Hafiz Abdul Waheed
+    addChild(1);
+    const gen1Child1Name = document.querySelector('[name="gen-1-child-1-name"]');
+    if (gen1Child1Name) gen1Child1Name.value = 'Hakeem & Dr. Muhammad Abdus Samad Samdani (رحمۃ اللہ علیہ)';
+    const gen1Child1Prof = document.querySelector('[name="gen-1-child-1-profession"]');
+    if (gen1Child1Prof) gen1Child1Prof.value = 'Eminent physician, Hakeem, and religious scholar. He had eight (8) children.';
+
+    addChild(1);
+    const gen1Child2Name = document.querySelector('[name="gen-1-child-2-name"]');
+    if (gen1Child2Name) gen1Child2Name.value = 'Hafiz Abdul Waheed';
+    const gen1Child2Prof = document.querySelector('[name="gen-1-child-2-profession"]');
+    if (gen1Child2Prof) gen1Child2Prof.value = 'Hafiz, teacher, court auditor, religious scholar. Graduate from Umrabad and King Faisal University.';
+    const gen1Child2Spouse = document.querySelector('[name="gen-1-child-2-spouse"]');
+    if (gen1Child2Spouse) gen1Child2Spouse.value = 'Asma Shaheen (family background: Religious Scholar)';
+    const gen1Child2Children = document.querySelector('[name="gen-1-child-2-children"]');
+    if (gen1Child2Children) gen1Child2Children.value = 'Farha Yasmeen, Abdullah (Engineer, Born: 1987-01-05), Fatima Zeba, Abdur Rahman (Pharmacist, Born: 1988-12-12)';
+
+    // Section 3: Generation 2 - Late Muhammad Abdul Ghani Sahib
+    addGeneration();
+    const gen2Father = document.querySelector('[name="gen-2-father"]');
+    if (gen2Father) gen2Father.value = 'Late Muhammad Abdul Ghani Sahib';
+    const gen2Prof = document.querySelector('[name="gen-2-profession"]');
+    if (gen2Prof) gen2Prof.value = 'Second son of Munawwar Chand Sahib. Known within the family for dignity, responsibility, and moral character.';
+
+    // Gen 2 Child: Late Muhammad Abdullah Sahib
+    addChild(2);
+    const gen2Child1Name = document.querySelector('[name="gen-2-child-1-name"]');
+    if (gen2Child1Name) gen2Child1Name.value = 'Late Muhammad Abdullah Sahib';
+    const gen2Child1Spouse = document.querySelector('[name="gen-2-child-1-spouse"]');
+    if (gen2Child1Spouse) gen2Child1Spouse.value = 'Lalama (paternal/maternal grandmother)';
+    const gen2Child1Children = document.querySelector('[name="gen-2-child-1-children"]');
+    if (gen2Child1Children) gen2Child1Children.value = 'Abdul Mateen (3 sons, 1 daughter), Abdul Mubeen (1 son, 2 daughters), Abdul Mohsin (3 daughters)';
+
+    // Section 3: Generation 3 - Third Son (unknown)
+    addGeneration();
+    const gen3Father = document.querySelector('[name="gen-3-father"]');
+    if (gen3Father) gen3Father.value = 'Third Son of Munawwar Chand Sahib';
+    const gen3Prof = document.querySelector('[name="gen-3-profession"]');
+    if (gen3Prof) gen3Prof.value = 'Authentic and verified information not yet available. Family records to be updated when details are obtained.';
 }
 
 // Generate next form number
