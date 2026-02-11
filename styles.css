@@ -1119,15 +1119,11 @@ body[dir="rtl"] .search-input {
 .tree-node-desc {
     font-size: 0.76em;
     opacity: 0.8;
-    line-height: 1.35;
-    max-height: 4.2em;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
+    line-height: 1.4;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center;
 }
 
 /* ========== CONNECTOR LINES (diagram-style) ========== */
