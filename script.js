@@ -1249,18 +1249,59 @@ function initializeStatistics() {
     calculateStatistics();
 }
 
+// Parse mentioned-but-not-listed people from descriptions
+function countMentionedMembers(desc) {
+    if (!desc) return 0;
+    let extra = 0;
+    const text = desc.toLowerCase();
+
+    // Count "X sons", "X daughters", "X children"
+    const countPatterns = [
+        /(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:\(\d+\))?\s*(?:sons?|daughters?|children)/gi
+    ];
+    const wordToNum = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+
+    for (const pattern of countPatterns) {
+        let match;
+        while ((match = pattern.exec(text)) !== null) {
+            const numStr = match[1].toLowerCase();
+            const num = wordToNum[numStr] || parseInt(numStr) || 0;
+            extra += num;
+        }
+    }
+
+    // Also check for "he had eight (8) children" style
+    const parenMatch = text.match(/\((\d+)\)\s*children/);
+    if (parenMatch && extra === 0) {
+        extra += parseInt(parenMatch[1]) || 0;
+    }
+
+    // Count spouses mentioned (Wife: X, Spouse: X)
+    const spousePatterns = /(?:wife|spouse|husband)[\s:]+([A-Z])/gi;
+    let spouseMatch;
+    while ((spouseMatch = spousePatterns.exec(desc)) !== null) {
+        extra++;
+    }
+
+    return extra;
+}
+
 function calculateStatistics() {
     const data = familyData;
 
-    let totalMembers = 0;
+    let treeMembers = 0;
+    let mentionedMembers = 0;
     let maxGeneration = 0;
     let families = 0;
     let dates = [];
 
     function countMembers(node, level = 0) {
         if (node.name) {
-            totalMembers++;
+            treeMembers++;
             maxGeneration = Math.max(maxGeneration, level + 1);
+
+            // Count people mentioned in descriptions but not in the tree
+            mentionedMembers += countMentionedMembers(node.description);
 
             const dateMatch = node.description?.match(/\d{4}-\d{2}-\d{2}|\d{4}/g);
             if (dateMatch) {
@@ -1269,12 +1310,14 @@ function calculateStatistics() {
         }
 
         if (node.children && node.children.length > 0) {
-            families += node.children.length;
+            families++;
             node.children.forEach(child => countMembers(child, level + 1));
         }
     }
 
     countMembers(data);
+
+    const totalMembers = treeMembers + mentionedMembers;
 
     const yearDates = dates.map(d => {
         const year = d.match(/\d{4}/)?.[0];
