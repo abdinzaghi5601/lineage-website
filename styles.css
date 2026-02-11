@@ -911,9 +911,9 @@ body[dir="rtl"] .search-input {
 .tree-node-card {
     background: var(--card-bg);
     border-radius: var(--radius-sm);
-    padding: 12px 14px;
+    padding: 10px 10px;
     box-shadow: var(--shadow-sm);
-    width: 200px;
+    width: 170px;
     text-align: center;
     transition: all var(--transition);
     cursor: pointer;
@@ -1028,7 +1028,7 @@ body[dir="rtl"] .search-input {
     background: var(--gradient-primary);
     color: white;
     border: none;
-    min-width: 220px;
+    min-width: 180px;
 }
 
 .tree-node-card.root-node::before {
@@ -1062,9 +1062,10 @@ body[dir="rtl"] .search-input {
 }
 
 .tree-node-name {
-    font-size: 0.9em;
+    font-size: 0.82em;
     font-weight: 600;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
+    line-height: 1.2;
 }
 
 .tree-node-title {
@@ -1086,7 +1087,7 @@ body[dir="rtl"] .search-input {
 /* Vertical line down from parent to horizontal bar */
 .tree-line-down {
     width: 2px;
-    height: 18px;
+    height: 14px;
     background: var(--secondary);
     margin: 0 auto;
     transition: opacity 0.3s ease;
@@ -1112,7 +1113,7 @@ body[dir="rtl"] .search-input {
 /* Vertical line up from horizontal bar to each child */
 .tree-line-up {
     width: 2px;
-    height: 18px;
+    height: 14px;
     background: var(--secondary);
     margin: 0 auto;
 }
@@ -1129,7 +1130,7 @@ body[dir="rtl"] .search-input {
 .tree-children {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     overflow: hidden;
     transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
@@ -1155,32 +1156,32 @@ body[dir="rtl"] .search-input {
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: 1;
+    flex: 0 1 auto;
     min-width: 0;
 }
 
 /* Level sizing */
 .level-0 > .tree-node-card {
-    font-size: 0.95em;
-    padding: 14px 16px;
-    width: 220px;
+    font-size: 0.88em;
+    padding: 12px 12px;
+    width: 190px;
 }
 
 .level-1 > .tree-node-card {
-    font-size: 0.88em;
-    width: 195px;
+    font-size: 0.82em;
+    width: 170px;
 }
 
 .level-2 > .tree-node-card {
-    font-size: 0.82em;
-    padding: 10px 12px;
-    width: 175px;
+    font-size: 0.78em;
+    padding: 8px 10px;
+    width: 155px;
 }
 
 .level-3 > .tree-node-card {
-    font-size: 0.78em;
-    padding: 8px 10px;
-    width: 160px;
+    font-size: 0.75em;
+    padding: 7px 8px;
+    width: 140px;
 }
 
 /* ========== TREE STATUS ========== */
