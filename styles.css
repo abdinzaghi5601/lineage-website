@@ -1348,7 +1348,7 @@ body[dir="rtl"] .search-input {
 #family-tree.tree-horizontal-wrap {
     display: flex;
     flex-direction: row;
-    align-items: stretch;
+    align-items: flex-start;
     justify-content: flex-start;
     gap: 0;
     padding: 40px 32px 48px;
@@ -1357,73 +1357,88 @@ body[dir="rtl"] .search-input {
     min-height: 280px;
 }
 
-.tree-horizontal-wrap .tree-horizontal-connector {
-    width: 28px;
-    min-width: 28px;
-    align-self: stretch;
-    border-left: 3px solid var(--secondary);
-    margin-left: 8px;
-    margin-right: 8px;
-    border-radius: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(15, 52, 96, 0.08) 50%, transparent 100%);
-    flex-shrink: 0;
-}
-
-.tree-horizontal-wrap .tree-horizontal-gen {
+/* Each node wrapper */
+.htree-node {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 20px;
     flex-shrink: 0;
 }
 
-.tree-horizontal-wrap .tree-horizontal-node-row {
+/* Row: card + connector + children */
+.htree-row {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0;
-}
-
-.tree-horizontal-wrap .tree-horizontal-line-h {
-    width: 20px;
-    min-width: 20px;
-    height: 0;
-    border-top: 3px solid var(--secondary);
     flex-shrink: 0;
 }
 
 .tree-horizontal-wrap .tree-horizontal-card {
     flex-shrink: 0;
-}
-
-.tree-horizontal-wrap .tree-horizontal-gen[data-gen="0"] .tree-horizontal-card {
-    min-width: 200px;
-    width: 200px;
-}
-
-.tree-horizontal-wrap .tree-horizontal-gen[data-gen="1"] .tree-horizontal-card {
-    min-width: 190px;
-    width: 190px;
-}
-
-.tree-horizontal-wrap .tree-horizontal-gen[data-gen="2"] .tree-horizontal-card {
     min-width: 180px;
     width: 180px;
 }
 
-.tree-horizontal-wrap .tree-horizontal-gen[data-gen="3"] .tree-horizontal-card {
-    min-width: 170px;
-    width: 170px;
+/* Horizontal connector from card to children block */
+.htree-line-h {
+    width: 24px;
+    min-width: 24px;
+    height: 0;
+    border-top: 3px solid var(--secondary);
+    flex-shrink: 0;
+    transition: opacity 0.3s ease;
 }
 
-.tree-horizontal-wrap .tree-horizontal-gen[data-gen="4"] .tree-horizontal-card {
-    min-width: 160px;
-    width: 160px;
+.htree-line-h.htree-collapsed {
+    opacity: 0;
+    width: 0;
+    min-width: 0;
+    border: none;
 }
 
-/* Horizontal tree: hide chevron area when only badge + info */
-.tree-horizontal-wrap .tree-card-bottom .tree-chevron {
+/* Children block: vertical line + children column */
+.htree-children-block {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.htree-children-block.htree-collapsed {
     display: none;
+}
+
+/* Vertical branch line connecting children */
+.htree-line-v {
+    width: 3px;
+    min-width: 3px;
+    background: linear-gradient(180deg, transparent 0%, var(--secondary) 10%, var(--secondary) 90%, transparent 100%);
+    border-radius: 2px;
+    flex-shrink: 0;
+    align-self: stretch;
+    margin: 12px 0;
+}
+
+/* Children column (stacked vertically) */
+.htree-children {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 0;
+    flex-shrink: 0;
+}
+
+/* Chevron for horizontal tree (points right, rotates when expanded) */
+.htree-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    opacity: 0.9;
+}
+
+.tree-node-card.expanded .htree-chevron {
+    transform: rotate(90deg);
 }
 
 /* ========== TREE STATUS ========== */
@@ -1754,17 +1769,18 @@ footer {
         padding: 24px 16px 32px;
     }
 
-    .tree-horizontal-wrap .tree-horizontal-connector {
-        width: 20px;
-        min-width: 20px;
-        margin-left: 4px;
-        margin-right: 4px;
+    .tree-horizontal-wrap .tree-horizontal-card {
+        min-width: 150px;
+        width: 150px;
     }
 
-    .tree-horizontal-wrap .tree-horizontal-gen[data-gen="0"] .tree-horizontal-card,
-    .tree-horizontal-wrap .tree-horizontal-gen[data-gen="1"] .tree-horizontal-card {
-        min-width: 160px;
-        width: 160px;
+    .htree-line-h {
+        width: 16px;
+        min-width: 16px;
+    }
+
+    .htree-children {
+        gap: 8px;
     }
 
     .modal-content {

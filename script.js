@@ -555,104 +555,162 @@ function createHTMLFamilyTree(data, container) {
     treeContainer.appendChild(treeHTML);
 }
 
-// Collect tree nodes by generation (level) for horizontal layout
-function getGenerations(node) {
-    const gens = [];
-    function walk(n, level) {
-        if (!gens[level]) gens[level] = [];
-        gens[level].push(n);
-        if (n.children && n.children.length) n.children.forEach(c => walk(c, level + 1));
-    }
-    walk(node, 0);
-    return gens;
-}
-
-// Create a single card element for horizontal tree (no expand/collapse)
-function createHorizontalCard(node, level) {
-    const card = document.createElement('div');
-    card.className = 'tree-node-card tree-horizontal-card';
-    if (level === 0) card.classList.add('root-node');
-    else if (level === 1) card.classList.add('first-gen');
-    else card.classList.add('child-node');
-
-    const cardTop = document.createElement('div');
-    cardTop.className = 'tree-card-top';
-    const name = document.createElement('div');
-    name.className = 'tree-node-name';
-    name.textContent = node.name;
-    cardTop.appendChild(name);
-    card.appendChild(cardTop);
-
-    if (node.title) {
-        const title = document.createElement('div');
-        title.className = 'tree-node-title arabic';
-        title.textContent = node.title;
-        card.appendChild(title);
-    }
-    if (node.description) {
-        const desc = document.createElement('div');
-        desc.className = 'tree-node-desc';
-        desc.textContent = node.description;
-        card.appendChild(desc);
-    }
-
-    const cardBottom = document.createElement('div');
-    cardBottom.className = 'tree-card-bottom';
-    if (node.children && node.children.length > 0) {
-        const totalDesc = countDescendants(node);
-        const badge = document.createElement('span');
-        badge.className = 'tree-member-badge';
-        badge.textContent = `${node.children.length} child${node.children.length > 1 ? 'ren' : ''} · ${totalDesc} total`;
-        cardBottom.appendChild(badge);
-    }
-    const infoBtn = document.createElement('button');
-    infoBtn.className = 'tree-info-btn';
-    infoBtn.setAttribute('aria-label', `View details for ${node.name}`);
-    infoBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
-    infoBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showNodeDetails(node);
-    });
-    cardBottom.appendChild(infoBtn);
-    card.appendChild(cardBottom);
-
-    card.addEventListener('click', (e) => {
-        if (!e.target.closest('.tree-info-btn')) showNodeDetails(node);
-    });
-    return card;
-}
-
-// Horizontal (left-to-right) family tree layout
+// Horizontal (left-to-right) family tree with expand/collapse
 function createHorizontalFamilyTree(data, containerId) {
     const treeContainer = document.getElementById(containerId);
     if (!treeContainer) return;
     treeContainer.innerHTML = '';
     treeContainer.classList.add('tree-horizontal-wrap');
 
-    const generations = getGenerations(data);
-    if (generations.length === 0) return;
+    function createHNode(node, level) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'htree-node';
 
-    generations.forEach((gen, colIndex) => {
-        if (colIndex > 0) {
-            const connector = document.createElement('div');
-            connector.className = 'tree-horizontal-connector';
-            connector.setAttribute('aria-hidden', 'true');
-            treeContainer.appendChild(connector);
+        const row = document.createElement('div');
+        row.className = 'htree-row';
+
+        // Card
+        const card = document.createElement('div');
+        card.className = 'tree-node-card tree-horizontal-card';
+        if (level === 0) card.classList.add('root-node');
+        else if (level === 1) card.classList.add('first-gen');
+        else card.classList.add('child-node');
+
+        const cardTop = document.createElement('div');
+        cardTop.className = 'tree-card-top';
+        const name = document.createElement('div');
+        name.className = 'tree-node-name';
+        name.textContent = node.name;
+        cardTop.appendChild(name);
+        card.appendChild(cardTop);
+
+        if (node.title) {
+            const title = document.createElement('div');
+            title.className = 'tree-node-title arabic';
+            title.textContent = node.title;
+            card.appendChild(title);
         }
-        const col = document.createElement('div');
-        col.className = 'tree-horizontal-gen';
-        col.setAttribute('data-gen', colIndex);
-        gen.forEach(node => {
-            const row = document.createElement('div');
-            row.className = 'tree-horizontal-node-row';
-            const lineH = document.createElement('div');
-            lineH.className = 'tree-horizontal-line-h';
-            row.appendChild(lineH);
-            row.appendChild(createHorizontalCard(node, colIndex));
-            col.appendChild(row);
+        if (node.description) {
+            const desc = document.createElement('div');
+            desc.className = 'tree-node-desc';
+            desc.textContent = node.description;
+            card.appendChild(desc);
+        }
+
+        const hasChildren = node.children && node.children.length > 0;
+
+        const cardBottom = document.createElement('div');
+        cardBottom.className = 'tree-card-bottom';
+
+        if (hasChildren) {
+            const totalDesc = countDescendants(node);
+            const badge = document.createElement('span');
+            badge.className = 'tree-member-badge';
+            badge.textContent = `${node.children.length} child${node.children.length > 1 ? 'ren' : ''} · ${totalDesc} total`;
+            cardBottom.appendChild(badge);
+
+            // Chevron pointing right (rotates down when expanded)
+            const chevron = document.createElement('span');
+            chevron.className = 'htree-chevron';
+            chevron.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+            cardBottom.appendChild(chevron);
+        }
+
+        const infoBtn = document.createElement('button');
+        infoBtn.className = 'tree-info-btn';
+        infoBtn.setAttribute('aria-label', `View details for ${node.name}`);
+        infoBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
+        infoBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showNodeDetails(node);
         });
-        treeContainer.appendChild(col);
-    });
+        cardBottom.appendChild(infoBtn);
+        card.appendChild(cardBottom);
+        row.appendChild(card);
+
+        if (hasChildren) {
+            // Horizontal connector line from card to children
+            const lineH = document.createElement('div');
+            lineH.className = 'htree-line-h';
+            row.appendChild(lineH);
+
+            // Vertical branch + children column
+            const childrenBlock = document.createElement('div');
+            childrenBlock.className = 'htree-children-block';
+
+            const vertLine = document.createElement('div');
+            vertLine.className = 'htree-line-v';
+            childrenBlock.appendChild(vertLine);
+
+            const childrenCol = document.createElement('div');
+            childrenCol.className = 'htree-children';
+
+            // Start collapsed for levels > 0
+            if (level > 0) {
+                childrenBlock.classList.add('htree-collapsed');
+                lineH.classList.add('htree-collapsed');
+            } else {
+                card.classList.add('expanded');
+            }
+
+            node.children.forEach(child => {
+                childrenCol.appendChild(createHNode(child, level + 1));
+            });
+
+            childrenBlock.appendChild(childrenCol);
+            row.appendChild(childrenBlock);
+
+            // Click card to expand/collapse
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.tree-info-btn')) return;
+
+                const isCollapsed = childrenBlock.classList.contains('htree-collapsed');
+
+                if (isCollapsed) {
+                    childrenBlock.classList.remove('htree-collapsed');
+                    lineH.classList.remove('htree-collapsed');
+                    card.classList.add('expanded');
+                    // Animate in
+                    childrenBlock.style.maxWidth = '0';
+                    childrenBlock.style.opacity = '0';
+                    childrenBlock.offsetHeight; // force reflow
+                    childrenBlock.style.transition = 'max-width 0.4s ease, opacity 0.3s ease';
+                    childrenBlock.style.maxWidth = childrenBlock.scrollWidth + 'px';
+                    childrenBlock.style.opacity = '1';
+                    setTimeout(() => {
+                        childrenBlock.style.maxWidth = 'none';
+                        childrenBlock.style.transition = '';
+                    }, 420);
+                } else {
+                    // Animate out
+                    childrenBlock.style.maxWidth = childrenBlock.scrollWidth + 'px';
+                    childrenBlock.style.opacity = '1';
+                    childrenBlock.offsetHeight;
+                    childrenBlock.style.transition = 'max-width 0.4s ease, opacity 0.25s ease';
+                    childrenBlock.style.maxWidth = '0';
+                    childrenBlock.style.opacity = '0';
+                    lineH.classList.add('htree-collapsed');
+                    card.classList.remove('expanded');
+                    setTimeout(() => {
+                        childrenBlock.classList.add('htree-collapsed');
+                        childrenBlock.style.maxWidth = '';
+                        childrenBlock.style.opacity = '';
+                        childrenBlock.style.transition = '';
+                    }, 400);
+                }
+            });
+        } else {
+            // Leaf node — just click for details
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.tree-info-btn')) showNodeDetails(node);
+            });
+        }
+
+        wrapper.appendChild(row);
+        return wrapper;
+    }
+
+    treeContainer.appendChild(createHNode(data, 0));
 }
 
 // Refresh tree with latest data
