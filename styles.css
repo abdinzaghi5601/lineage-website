@@ -1241,6 +1241,88 @@ body[dir="rtl"] .search-input {
     min-width: 165px;
 }
 
+/* ========== HORIZONTAL TREE (left-to-right) ========== */
+#family-tree.tree-horizontal-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 40px 32px 48px;
+    overflow-x: auto;
+    overflow-y: visible;
+    min-height: 280px;
+}
+
+.tree-horizontal-wrap .tree-horizontal-connector {
+    width: 28px;
+    min-width: 28px;
+    align-self: stretch;
+    border-left: 3px solid var(--secondary);
+    margin-left: 8px;
+    margin-right: 8px;
+    border-radius: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(15, 52, 96, 0.08) 50%, transparent 100%);
+    flex-shrink: 0;
+}
+
+.tree-horizontal-wrap .tree-horizontal-gen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.tree-horizontal-wrap .tree-horizontal-node-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+}
+
+.tree-horizontal-wrap .tree-horizontal-line-h {
+    width: 20px;
+    min-width: 20px;
+    height: 0;
+    border-top: 3px solid var(--secondary);
+    flex-shrink: 0;
+}
+
+.tree-horizontal-wrap .tree-horizontal-card {
+    flex-shrink: 0;
+}
+
+.tree-horizontal-wrap .tree-horizontal-gen[data-gen="0"] .tree-horizontal-card {
+    min-width: 200px;
+    width: 200px;
+}
+
+.tree-horizontal-wrap .tree-horizontal-gen[data-gen="1"] .tree-horizontal-card {
+    min-width: 190px;
+    width: 190px;
+}
+
+.tree-horizontal-wrap .tree-horizontal-gen[data-gen="2"] .tree-horizontal-card {
+    min-width: 180px;
+    width: 180px;
+}
+
+.tree-horizontal-wrap .tree-horizontal-gen[data-gen="3"] .tree-horizontal-card {
+    min-width: 170px;
+    width: 170px;
+}
+
+.tree-horizontal-wrap .tree-horizontal-gen[data-gen="4"] .tree-horizontal-card {
+    min-width: 160px;
+    width: 160px;
+}
+
+/* Horizontal tree: hide chevron area when only badge + info */
+.tree-horizontal-wrap .tree-card-bottom .tree-chevron {
+    display: none;
+}
+
 /* ========== TREE STATUS ========== */
 .tree-status {
     margin-bottom: 20px;
@@ -1524,6 +1606,23 @@ footer {
 
     #family-tree {
         padding: 32px 16px 40px;
+    }
+
+    #family-tree.tree-horizontal-wrap {
+        padding: 24px 16px 32px;
+    }
+
+    .tree-horizontal-wrap .tree-horizontal-connector {
+        width: 20px;
+        min-width: 20px;
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
+    .tree-horizontal-wrap .tree-horizontal-gen[data-gen="0"] .tree-horizontal-card,
+    .tree-horizontal-wrap .tree-horizontal-gen[data-gen="1"] .tree-horizontal-card {
+        min-width: 160px;
+        width: 160px;
     }
 
     .modal-content {

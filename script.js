@@ -549,12 +549,116 @@ function createHTMLFamilyTree(data, container) {
     treeContainer.appendChild(treeHTML);
 }
 
+// Collect tree nodes by generation (level) for horizontal layout
+function getGenerations(node) {
+    const gens = [];
+    function walk(n, level) {
+        if (!gens[level]) gens[level] = [];
+        gens[level].push(n);
+        if (n.children && n.children.length) n.children.forEach(c => walk(c, level + 1));
+    }
+    walk(node, 0);
+    return gens;
+}
+
+// Create a single card element for horizontal tree (no expand/collapse)
+function createHorizontalCard(node, level) {
+    const card = document.createElement('div');
+    card.className = 'tree-node-card tree-horizontal-card';
+    if (level === 0) card.classList.add('root-node');
+    else if (level === 1) card.classList.add('first-gen');
+    else card.classList.add('child-node');
+
+    const cardTop = document.createElement('div');
+    cardTop.className = 'tree-card-top';
+    const name = document.createElement('div');
+    name.className = 'tree-node-name';
+    name.textContent = node.name;
+    cardTop.appendChild(name);
+    card.appendChild(cardTop);
+
+    if (node.title) {
+        const title = document.createElement('div');
+        title.className = 'tree-node-title arabic';
+        title.textContent = node.title;
+        card.appendChild(title);
+    }
+    if (node.description) {
+        const desc = document.createElement('div');
+        desc.className = 'tree-node-desc';
+        desc.textContent = node.description;
+        card.appendChild(desc);
+    }
+
+    const cardBottom = document.createElement('div');
+    cardBottom.className = 'tree-card-bottom';
+    if (node.children && node.children.length > 0) {
+        const totalDesc = countDescendants(node);
+        const badge = document.createElement('span');
+        badge.className = 'tree-member-badge';
+        badge.textContent = `${node.children.length} child${node.children.length > 1 ? 'ren' : ''} · ${totalDesc} total`;
+        cardBottom.appendChild(badge);
+    }
+    const infoBtn = document.createElement('button');
+    infoBtn.className = 'tree-info-btn';
+    infoBtn.setAttribute('aria-label', `View details for ${node.name}`);
+    infoBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>';
+    infoBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showNodeDetails(node);
+    });
+    cardBottom.appendChild(infoBtn);
+    card.appendChild(cardBottom);
+
+    card.addEventListener('click', (e) => {
+        if (!e.target.closest('.tree-info-btn')) showNodeDetails(node);
+    });
+    return card;
+}
+
+// Horizontal (left-to-right) family tree layout
+function createHorizontalFamilyTree(data, containerId) {
+    const treeContainer = document.getElementById(containerId);
+    if (!treeContainer) return;
+    treeContainer.innerHTML = '';
+    treeContainer.classList.add('tree-horizontal-wrap');
+
+    const generations = getGenerations(data);
+    if (generations.length === 0) return;
+
+    generations.forEach((gen, colIndex) => {
+        if (colIndex > 0) {
+            const connector = document.createElement('div');
+            connector.className = 'tree-horizontal-connector';
+            connector.setAttribute('aria-hidden', 'true');
+            treeContainer.appendChild(connector);
+        }
+        const col = document.createElement('div');
+        col.className = 'tree-horizontal-gen';
+        col.setAttribute('data-gen', colIndex);
+        gen.forEach(node => {
+            const row = document.createElement('div');
+            row.className = 'tree-horizontal-node-row';
+            const lineH = document.createElement('div');
+            lineH.className = 'tree-horizontal-line-h';
+            row.appendChild(lineH);
+            row.appendChild(createHorizontalCard(node, colIndex));
+            col.appendChild(row);
+        });
+        treeContainer.appendChild(col);
+    });
+}
+
 // Refresh tree with latest data
 function refreshTree() {
     familyData = loadFamilyData();
     const treeContainer = document.getElementById('family-tree');
     if (treeContainer) {
-        createHTMLFamilyTree(familyData, 'family-tree');
+        if (currentTreeView === 'horizontal') {
+            createHorizontalFamilyTree(familyData, 'family-tree');
+        } else {
+            createHTMLFamilyTree(familyData, 'family-tree');
+        }
         populateFilters();
         calculateStatistics();
 
@@ -1143,12 +1247,14 @@ function extractDate(description) {
 
 function initializeViewToggles() {
     const treeViewBtn = document.getElementById('tree-view-btn');
+    const horizontalViewBtn = document.getElementById('horizontal-view-btn');
     const timelineViewBtn = document.getElementById('timeline-view-btn');
     const statsViewBtn = document.getElementById('stats-view-btn');
 
     if (!treeViewBtn) return;
 
     treeViewBtn.addEventListener('click', () => switchView('tree'));
+    if (horizontalViewBtn) horizontalViewBtn.addEventListener('click', () => switchView('horizontal'));
     timelineViewBtn.addEventListener('click', () => switchView('timeline'));
     statsViewBtn.addEventListener('click', () => switchView('stats'));
 }
@@ -1168,10 +1274,26 @@ function switchView(view) {
     const statsDashboard = document.querySelector('.stats-dashboard');
 
     if (view === 'tree') {
+        currentTreeView = 'tree';
         if (treeContainer) treeContainer.style.display = 'block';
         if (treeDetails) treeDetails.style.display = 'block';
         if (timelineContainer) timelineContainer.style.display = 'none';
         if (statsDashboard) statsDashboard.style.display = 'block';
+        const treeEl = document.getElementById('family-tree');
+        if (treeEl) {
+            treeEl.classList.remove('tree-horizontal-wrap');
+            createHTMLFamilyTree(familyData, 'family-tree');
+        }
+    } else if (view === 'horizontal') {
+        currentTreeView = 'horizontal';
+        if (treeContainer) treeContainer.style.display = 'block';
+        if (treeDetails) treeDetails.style.display = 'block';
+        if (timelineContainer) timelineContainer.style.display = 'none';
+        if (statsDashboard) statsDashboard.style.display = 'block';
+        const treeEl = document.getElementById('family-tree');
+        if (treeEl) {
+            createHorizontalFamilyTree(familyData, 'family-tree');
+        }
     } else if (view === 'timeline') {
         if (treeContainer) treeContainer.style.display = 'none';
         if (treeDetails) treeDetails.style.display = 'none';

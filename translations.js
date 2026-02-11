@@ -22,6 +22,7 @@ const translations = {
 
         // Views
         'view-tree': 'Tree View',
+        'view-horizontal': 'Horizontal',
         'view-timeline': 'Timeline View',
         'view-stats': 'Statistics',
 
@@ -100,6 +101,7 @@ const translations = {
 
         // Views
         'view-tree': 'درخت کا منظر',
+        'view-horizontal': 'افقی',
         'view-timeline': 'وقت کی لائن',
         'view-stats': 'اعداد و شمار',
 
