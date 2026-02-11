@@ -524,7 +524,12 @@ function createHTMLFamilyTree(data, container) {
                     setTimeout(() => {
                         childrenRow.classList.remove('expanding');
                         childrenRow.style.maxHeight = 'none';
-                    }, 350);
+                        // Scroll expanded area into view inside the tree container
+                        const treeContainer = document.getElementById('family-tree');
+                        if (treeContainer && childrenRow.offsetParent) {
+                            childrenRow.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                        }
+                    }, 380);
                 } else {
                     const height = childrenRow.scrollHeight;
                     childrenRow.style.maxHeight = height + 'px';

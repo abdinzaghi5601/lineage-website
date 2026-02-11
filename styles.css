@@ -557,17 +557,19 @@ body[dir="rtl"] .search-input {
 
 #family-tree {
     min-height: 280px;
+    max-height: 85vh;
     background: linear-gradient(180deg, rgba(26, 26, 46, 0.02) 0%, rgba(240, 242, 245, 0.5) 100%);
     border-radius: var(--radius);
     padding: 48px 32px 56px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), var(--shadow-sm);
     overflow-x: auto;
-    overflow-y: visible;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     border: 1px solid var(--border);
     position: relative;
+    scroll-behavior: smooth;
 }
 
 #family-tree::before {
@@ -939,7 +941,7 @@ body[dir="rtl"] .search-input {
     cursor: pointer;
     border: 2px solid transparent;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     user-select: none;
     z-index: 1;
 }
@@ -1118,12 +1120,14 @@ body[dir="rtl"] .search-input {
     font-size: 0.76em;
     opacity: 0.8;
     line-height: 1.35;
-    max-height: 2.8em;
+    max-height: 4.2em;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* ========== CONNECTOR LINES (diagram-style) ========== */
@@ -1606,6 +1610,7 @@ footer {
 
     #family-tree {
         padding: 32px 16px 40px;
+        max-height: 75vh;
     }
 
     #family-tree.tree-horizontal-wrap {
